@@ -24,6 +24,7 @@ import math
 from konumlar import Konumlar_Hesaplama
 from palet_sayisi import Palet_Hesaplama
 from ambalaj import Palet_Acıklama
+from dashboard_window import DashboardWindow
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "Pull+data-playwright"))
 try:
@@ -124,6 +125,8 @@ class MapPointSelector(QMainWindow):
         self.bridge = MapBridge()
         self.bridge.main_window = self
         
+        self.dashboard_win = None  # will be created on first open
+        
         self.init_ui()
         self.load_data()
         
@@ -153,6 +156,7 @@ class MapPointSelector(QMainWindow):
         
         main_layout.addWidget(splitter)
         
+        self.selected_sales_reps = [] # Seçili temsilcileri tutar
         # Status bar
         self.statusBar().showMessage("Hazır")
         
@@ -203,17 +207,28 @@ class MapPointSelector(QMainWindow):
         layout.addWidget(search_group)
         
         # Filtreleme grubu
+        # --- Filtreleme Grubu Güncellemesi ---
         filter_group = QGroupBox("Filtreleme")
         filter_layout = QVBoxLayout(filter_group)
-        
-        QLabel("Satış Temsilcisi:").setParent(filter_group)
-        filter_layout.addWidget(QLabel("Satış Temsilcisi:"))
-        
-        self.sales_rep_combo = QComboBox()
-        self.sales_rep_combo.addItem("Tümü")
-        self.sales_rep_combo.currentTextChanged.connect(self.filter_by_sales_rep)
-        filter_layout.addWidget(self.sales_rep_combo)
-        
+
+        filter_layout.addWidget(QLabel("Satış Temsilcileri:"))
+
+        # Tümünü Seç / Kaldır Butonu
+        self.toggle_reps_btn = QPushButton("Tümünü Seç/Kaldır")
+        self.toggle_reps_btn.setStyleSheet("background-color: #34495e; font-size: 10px;")
+        self.toggle_reps_btn.clicked.connect(self.toggle_all_rep_checkboxes)
+        filter_layout.addWidget(self.toggle_reps_btn)
+
+        # Checkbox'lar için kaydırılabilir alan
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setMaximumHeight(150)
+        scroll_widget = QWidget()
+        self.reps_list_layout = QVBoxLayout(scroll_widget)
+        self.reps_list_layout.setAlignment(Qt.AlignTop)
+        scroll.setWidget(scroll_widget)
+
+        filter_layout.addWidget(scroll)
         layout.addWidget(filter_group)
         
         # Listeler grubu
@@ -251,6 +266,11 @@ class MapPointSelector(QMainWindow):
         export_btn = QPushButton("💾 Seçilenleri Dışa Aktar")
         export_btn.clicked.connect(self.export_selected_points)
         bulk_layout.addWidget(export_btn)
+        
+        dashboard_btn = QPushButton("📊 Dashboard Aç")
+        dashboard_btn.clicked.connect(self.open_dashboard)
+        dashboard_btn.setStyleSheet("background-color: #8e44ad;")
+        bulk_layout.addWidget(dashboard_btn)
         
         layout.addWidget(bulk_group)
         
@@ -364,6 +384,38 @@ class MapPointSelector(QMainWindow):
         layout.addWidget(table_group)
         
         return panel
+        
+    def update_sales_rep_filters(self):
+        """Temsilci listesini checkbox olarak doldurur"""
+        # Mevcut checkbox'ları temizle
+        for i in reversed(range(self.reps_list_layout.count())): 
+            self.reps_list_layout.itemAt(i).widget().setParent(None)
+
+        if self.locations_df is not None and not self.locations_df.empty:
+            sales_reps = sorted(self.locations_df['SATIŞ_TEMSİLCİSİ'].unique())
+            for rep in sales_reps:
+                if pd.notna(rep):
+                    cb = QCheckBox(rep)
+                    cb.setChecked(True) # Varsayılan olarak hepsi seçili
+                    cb.stateChanged.connect(self.filter_by_sales_rep)
+                    self.reps_list_layout.addWidget(cb)
+
+    def toggle_all_rep_checkboxes(self):
+        """Tüm checkbox'ları tersine çevirir"""
+        first_state = False
+        for i in range(self.reps_list_layout.count()):
+            cb = self.reps_list_layout.itemAt(i).widget()
+            if i == 0: first_state = not cb.isChecked()
+            cb.setChecked(first_state)
+
+    def get_selected_reps(self):
+        """İşaretli olan temsilcilerin listesini döndürür"""
+        selected = []
+        for i in range(self.reps_list_layout.count()):
+            cb = self.reps_list_layout.itemAt(i).widget()
+            if cb.isChecked():
+                selected.append(cb.text())
+        return selected        
         
     def apply_modern_style(self):
         """Modern stil uygula"""
@@ -607,7 +659,7 @@ class MapPointSelector(QMainWindow):
             self.pallet_calculations = Palet_Hesaplama(self.sales_df, self.customer_df, self.pallet_df)
             
             # Satış temsilcilerini combo box'a ekle
-            self.update_sales_rep_combo()
+            self.update_sales_rep_filters()
             
             # Renk paletini oluştur
             self.assign_colors_to_sales_reps()
@@ -617,6 +669,13 @@ class MapPointSelector(QMainWindow):
             
             # Veri istesi listesini güncelle
             self.update_data_request_list()
+            
+            # Dashboard açıksa güncelle
+            if self.dashboard_win and self.dashboard_win.isVisible():
+                self.dashboard_win.load_data(
+                    self.sales_df, self.customer_df, self.pallet_df,
+                    self.locations_df, self.pallet_calculations
+                )
             
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Veri işleme hatası: {str(e)}")
@@ -789,17 +848,18 @@ class MapPointSelector(QMainWindow):
         self.map_view.load(QUrl.fromLocalFile(temp_file.name))
         
     def get_filtered_data(self):
-        """Filtrelenmiş veriyi döndür"""
+        """Çoklu temsilci seçimine göre veriyi döndürür"""
         if self.locations_df is None:
             return pd.DataFrame()
             
         filtered_df = self.locations_df.copy()
         
-        # Satış temsilcisi filtresi
-        selected_rep = self.sales_rep_combo.currentText()
-        if selected_rep != "Tümü":
-            filtered_df = filtered_df[filtered_df['SATIŞ_TEMSİLCİSİ'] == selected_rep]
-            
+        # Seçili temsilcileri al
+        selected_reps = self.get_selected_reps()
+        
+        # Sadece seçili temsilcileri filtrele
+        filtered_df = filtered_df[filtered_df['SATIŞ_TEMSİLCİSİ'].isin(selected_reps)]
+                
         return filtered_df
         
     def update_data_request_list(self):
@@ -1222,6 +1282,28 @@ class MapPointSelector(QMainWindow):
         """Arama sonucuna odaklan"""
         point_id = item.data(Qt.UserRole)
         self.focus_on_point(point_id)
+
+    def open_dashboard(self):
+        """Open or focus the dashboard window."""
+        if self.dashboard_win is None or not self.dashboard_win.isVisible():
+            self.dashboard_win = DashboardWindow(parent=self)
+            self.dashboard_win.show()
+        else:
+            self.dashboard_win.raise_()
+            self.dashboard_win.activateWindow()
+
+        # Push current data immediately
+        if all([
+            self.pallet_calculations is not None,
+            self.locations_df is not None,
+        ]):
+            self.dashboard_win.load_data(
+                sales_df            = self.sales_df,
+                customer_df         = self.customer_df,
+                pallet_df           = self.pallet_df,
+                locations_df        = self.locations_df,
+                pallet_calculations = self.pallet_calculations,
+            )
 
 def main():
     app = QApplication(sys.argv)

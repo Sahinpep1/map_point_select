@@ -1,0 +1,1285 @@
+"""
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --bg2: #161b27;
+            --bg3: #1e2535;
+            --bg4: #252d42;
+            --border: rgba(255, 255, 255, 0.07);
+            --border2: rgba(255, 255, 255, 0.12);
+            --text: #e8eaf0;
+            --text2: #8b93a8;
+            --text3: #545c72;
+            --blue: #4f8ef7;
+            --blue-dim: rgba(79, 142, 247, 0.12);
+            --green: #3dd68c;
+            --green-dim: rgba(61, 214, 140, 0.12);
+            --amber: #f5a623;
+            --amber-dim: rgba(245, 166, 35, 0.12);
+            --red: #ff5f5f;
+            --red-dim: rgba(255, 95, 95, 0.12);
+            --purple: #a78bfa;
+            --purple-dim: rgba(167, 139, 250, 0.12);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.12);
+            --coral: #fb7185;
+            --coral-dim: rgba(251, 113, 133, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* ── LAYOUT ── */
+        .shell {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-width: 220px;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .sidebar-logo {
+            padding: 20px 18px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--text3);
+            text-transform: uppercase;
+        }
+
+        .sidebar-logo .logo-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 2px;
+        }
+
+        .multiselect-container {
+            position: relative;
+            width: 200px;
+        }
+
+        .filter-group {
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .select-box {
+            background: var(--bg3);
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .checkbox-area {
+            display: none;
+            position: absolute;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            width: 100%;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .checkbox-area label {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .checkbox-area input {
+            margin-right: 8px;
+        }
+
+        .sidebar-section {
+            padding: 12px 0 4px;
+        }
+
+        .sidebar-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--text3);
+            text-transform: uppercase;
+            padding: 0 18px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 18px;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 13px;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+            background: var(--bg3);
+        }
+
+        .nav-item.active {
+            color: var(--blue);
+            background: var(--blue-dim);
+            border-left-color: var(--blue);
+        }
+
+        .nav-icon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--green);
+            letter-spacing: 0.05em;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* ── MAIN ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .topbar-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        select {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--blue);
+        }
+
+        .btn {
+            background: var(--bg3);
+            color: var(--text2);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            color: var(--text);
+            border-color: var(--border2);
+            background: var(--bg4);
+        }
+
+        .btn-primary {
+            background: var(--blue-dim);
+            color: var(--blue);
+            border-color: rgba(79, 142, 247, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(79, 142, 247, 0.2);
+        }
+
+        /* ── CONTENT ── */
+        .content {
+            padding: 20px 24px;
+            flex: 1;
+        }
+
+        /* ── KPI CARDS ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--border2);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .kpi-card.blue::before {
+            background: var(--blue);
+        }
+
+        .kpi-card.green::before {
+            background: var(--green);
+        }
+
+        .kpi-card.amber::before {
+            background: var(--amber);
+        }
+
+        .kpi-card.red::before {
+            background: var(--red);
+        }
+
+        .kpi-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text3);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .kpi-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .badge-up {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .badge-warn {
+            background: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        .badge-danger {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        /* ── GRID 2-COL ── */
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .panel-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text2);
+        }
+
+        .panel-action {
+            font-size: 11px;
+            color: var(--blue);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .panel-action:hover {
+            text-decoration: underline;
+        }
+
+        /* ── CAPACITY BAR ── */
+        .cap-row {
+            margin-bottom: 12px;
+        }
+
+        .cap-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .cap-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .cap-name {
+            font-size: 12px;
+            color: var(--text);
+            font-weight: 500;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cap-info {
+            font-size: 11px;
+            color: var(--text3);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .cap-track {
+            height: 5px;
+            background: var(--bg4);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .cap-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* ── REP LIST ── */
+        .rep-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rep-row:last-child {
+            border-bottom: none;
+        }
+
+        .rep-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .rep-name {
+            flex: 1;
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .rep-count {
+            font-size: 11px;
+            color: var(--text3);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-right: 6px;
+        }
+
+        .rep-bar-wrap {
+            width: 80px;
+        }
+
+        .rep-bar-track {
+            height: 4px;
+            background: var(--bg4);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .rep-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        /* ── TABLE ── */
+        .tbl-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            text-align: left;
+            padding: 7px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--text3);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 8px 10px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg3);
+        }
+
+        .pill {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .pill-wait {
+            background: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        .pill-ready {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .mono-sm {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--text2);
+        }
+
+        .cap-pct {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .pct-ok {
+            color: var(--green);
+        }
+
+        .pct-warn {
+            color: var(--amber);
+        }
+
+        .pct-full {
+            color: var(--red);
+        }
+
+        /* ── TOTAL CAPACITY ── */
+        .total-cap-wrap {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .total-cap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 7px;
+        }
+
+        .total-cap-label {
+            font-size: 11px;
+            color: var(--text2);
+            font-weight: 500;
+        }
+
+        .total-cap-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .total-track {
+            height: 8px;
+            background: var(--bg4);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .total-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* ── DOUGHNUT ── */
+        .doughnut-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 12px;
+        }
+
+        .doughnut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .doughnut-big {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .doughnut-small {
+            font-size: 10px;
+            color: var(--text3);
+        }
+
+        .status-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .status-leg-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-leg-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .status-leg-sq {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .status-leg-val {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg4);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border2);
+        }
+
+        /* ── ANIMATIONS ── */
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text3);
+            font-size: 13px;
+        }
+
+        .empty-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">Teslimat Sistemi</div>
+                <div class="logo-name">Sipariş Dashboard</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Görünüm</div>
+                <div class="nav-item active" onclick="setPage('overview')">
+                    <span class="nav-icon">▦</span> Genel Bakış
+                </div>
+                <div class="nav-item" onclick="setPage('reps')">
+                    <span class="nav-icon">◈</span> Temsilciler
+                </div>
+                <div class="nav-item" onclick="setPage('orders')">
+                    <span class="nav-icon">≡</span> Siparişler
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Filtre</div>
+            </div>
+            <div style="padding: 0 12px 8px;">
+                <select id="modeSelect" style="width:100%; margin-bottom:6px;" onchange="applyFilters()">
+                    <option value="all">Tüm Siparişler</option>
+                    <option value="waiting">Açık Siparişler</option>
+                    <option value="ready">Teslimata Hazır</option>
+                </select>
+                <div class="filter-group">
+                    <label>Temsilciler</label>
+                    <div class="multiselect-container">
+                        <div class="select-box" onclick="toggleCheckboxArea()">
+                            <span id="selectedRepsLabel">Tümü Seçili</span>
+                        </div>
+                        <div id="checkboxes" class="checkbox-area">
+                            <label for="all">
+                                <input type="checkbox" id="selectAll" checked onclick="toggleAllReps(this)" />
+                                <strong>Tümünü Seç/Kaldır</strong>
+                            </label>
+                            <div id="repCheckboxesList">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="live-badge">
+                    <div class="live-dot"></div> Canlı veri
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+            <div class="topbar">
+                <span class="topbar-title" id="pageTitle">Genel Bakış</span>
+                <div class="topbar-controls">
+                    <span id="dataTimestamp" style="font-size:11px;color:var(--text3);"></span>
+                    <button class="btn btn-primary" onclick="refreshFromPython()">↻ Yenile</button>
+                </div>
+            </div>
+
+            <div class="content fade-in" id="pageContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+
+        /* ═══════════════════════════════════════════
+           DATA — injected by Python via updateData()
+        ═══════════════════════════════════════════ */
+        let ALL_DATA = [];
+        let currentPage = 'overview';
+
+        const REP_COLORS = [
+            '#4f8ef7', '#3dd68c', '#f5a623', '#fb7185',
+            '#a78bfa', '#2dd4bf', '#f97316', '#e879f9'
+        ];
+        let repColorMap = {};
+
+        /* ═══════════════════════════════════════════
+           PYTHON BRIDGE
+        ═══════════════════════════════════════════ */
+        let bridge = null;
+        new QWebChannel(qt.webChannelTransport, ch => { bridge = ch.objects.dashBridge; });
+
+        function refreshFromPython() {
+            if (bridge) bridge.requestRefresh();
+        }
+
+        function updateData(jsonStr) {
+            try {
+                ALL_DATA = JSON.parse(jsonStr);
+                const reps = [...new Set(ALL_DATA.map(r => r.rep))].sort();
+
+                // Renk haritasını oluştur
+                reps.forEach((r, i) => { repColorMap[r] = REP_COLORS[i % REP_COLORS.length]; });
+
+                // KRİTİK: Checkbox filtrelerini oluştur
+                updateFilters();
+
+                const now = new Date();
+                document.getElementById('dataTimestamp').textContent =
+                    now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' güncel';
+
+                renderPage();
+            } catch (e) { console.error('updateData error:', e); }
+        }
+
+        /* ═══════════════════════════════════════════
+           FILTERS & HELPERS
+        ═══════════════════════════════════════════ */
+        // 1. Temsilci listesini checkbox olarak oluşturma
+        function updateFilters() {
+            const reps = [...new Set(ALL_DATA.map(r => r.rep))].sort();
+            const list = document.getElementById('repCheckboxesList');
+            list.innerHTML = '';
+
+            reps.forEach(rep => {
+                list.innerHTML += `
+                    <label>
+                        <input type="checkbox" class="rep-checkbox" value="${rep}" checked onchange="onCheckboxChange()"> 
+                        ${rep}
+                    </label>`;
+            });
+            onCheckboxChange();
+        }
+
+        // 2. Filtreleme Fonksiyonu
+        function getFiltered() {
+            const mode = document.getElementById('modeSelect').value;
+
+            // İşaretli olan temsilcileri diziye al
+            const selectedReps = Array.from(document.querySelectorAll('.rep-checkbox:checked'))
+                .map(cb => cb.value);
+
+            return ALL_DATA.filter(r => {
+                // Durum Filtresi
+                const modeMatch = (mode === 'all' || r.status === mode);
+
+                // Çoklu Temsilci Filtresi (Seçili listesinde var mı?)
+                const repMatch = selectedReps.includes(r.rep);
+
+                return modeMatch && repMatch;
+            });
+        }
+
+        // Seçim kutusunu aç/kapat
+        function toggleCheckboxArea() {
+            const area = document.getElementById('checkboxes');
+            area.style.display = area.style.display === "block" ? "none" : "block";
+        }
+
+        // "Tümünü Seç" kutusu mantığı
+        function toggleAllReps(source) {
+            document.querySelectorAll('.rep-checkbox').forEach(cb => cb.checked = source.checked);
+            renderPage();
+        }
+
+        function onCheckboxChange() {
+            const total = document.querySelectorAll('.rep-checkbox').length;
+            const checked = document.querySelectorAll('.rep-checkbox:checked').length;
+            document.getElementById('selectAll').checked = (total === checked);
+            document.getElementById('selectedRepsLabel').textContent = `${checked} Temsilci Seçili`;
+            renderPage();
+        }
+
+        function groupByNokta(data) {
+            const map = {};
+            data.forEach(r => {
+                const p = r.miktar / r.paletKoli;
+                if (!map[r.nokta]) {
+                    map[r.nokta] = { nokta: r.nokta, rep: r.rep, miktar: 0, palet: 0, status: r.status, items: [] };
+                }
+                map[r.nokta].miktar += r.miktar;
+                map[r.nokta].palet += p;
+                map[r.nokta].items.push(r);
+            });
+            return Object.values(map);
+        }
+
+        function capColor(pct) {
+            if (pct >= 100) return 'var(--red)';
+            if (pct >= 80) return 'var(--amber)';
+            return 'var(--green)';
+        }
+        function capClass(pct) {
+            if (pct >= 100) return 'pct-full';
+            if (pct >= 80) return 'pct-warn';
+            return 'pct-ok';
+        }
+
+        function applyFilters() { renderPage(); }
+        function setPage(p) {
+            currentPage = p;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            const titles = { overview: 'Genel Bakış', reps: 'Temsilci Analizi', orders: 'Sipariş Detayları' };
+            document.getElementById('pageTitle').textContent = titles[p];
+            renderPage();
+        }
+        function renderPage() {
+            const pages = { overview: renderOverview, reps: renderReps, orders: renderOrders };
+            const fn = pages[currentPage] || renderOverview;
+            fn();
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGE: OVERVIEW
+        ═══════════════════════════════════════════ */
+        let repChartInst = null, statusChartInst = null;
+
+        function renderOverview() {
+            const data = getFiltered();
+            const grouped = groupByNokta(data);
+            const totalPalet = grouped.reduce((s, g) => s + g.palet, 0);
+            const totalMiktar = data.reduce((s, r) => s + r.miktar, 0);
+            const noktaCount = grouped.length;
+            const pct = Math.min(totalPalet / 8 * 100, 100);
+
+            const waitPalet = data.filter(r => r.status === 'waiting').reduce((s, r) => s + (r.miktar / r.paletKoli), 0);
+            const readyPalet = data.filter(r => r.status === 'ready').reduce((s, r) => s + (r.miktar / r.paletKoli), 0);
+
+            const repMap = {};
+            grouped.forEach(g => {
+                if (!repMap[g.rep]) repMap[g.rep] = 0;
+                repMap[g.rep] += g.palet;
+            });
+            const maxRepPalet = Math.max(...Object.values(repMap), 0.1);
+
+            const sortedNokta = [...grouped].sort((a, b) => b.palet - a.palet);
+
+            const kpiBadge = pct >= 100
+                ? `<span class="kpi-badge badge-danger">DOLU</span>`
+                : pct >= 80
+                    ? `<span class="kpi-badge badge-warn">Yüksek</span>`
+                    : `<span class="kpi-badge badge-up">Normal</span>`;
+
+            document.getElementById('pageContent').innerHTML = `
+    <div class="kpi-grid fade-in">
+      <div class="kpi-card blue">
+        <div class="kpi-label">Toplam Nokta</div>
+        <div class="kpi-value">${noktaCount}</div>
+        <div class="kpi-sub">aktif teslimat noktası</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Toplam Koli</div>
+        <div class="kpi-value">${totalMiktar.toLocaleString('tr-TR')}</div>
+        <div class="kpi-sub">adet</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Toplam Palet</div>
+        <div class="kpi-value">${totalPalet.toFixed(1)}</div>
+        <div class="kpi-sub">/ 8 kapasite ${kpiBadge}</div>
+      </div>
+      <div class="kpi-card ${pct >= 100 ? 'red' : pct >= 80 ? 'amber' : 'green'}">
+        <div class="kpi-label">Kapasite</div>
+        <div class="kpi-value" style="color:${capColor(pct)}">${Math.round(pct)}%</div>
+        <div class="kpi-sub">${pct >= 100 ? 'Araç dolu!' : pct >= 80 ? 'Dolmak üzere' : 'Uygun'}</div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Nokta bazında palet kapasitesi</span>
+          <button class="panel-action" onclick="setPageDirect('orders')">Tümünü gör →</button>
+        </div>
+        ${sortedNokta.slice(0, 8).map(g => {
+                const p = Math.min(g.palet / 8 * 100, 100);
+                return `<div class="cap-row">
+            <div class="cap-header">
+              <span class="cap-name">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${repColorMap[g.rep] || '#888'};margin-right:5px;vertical-align:middle;"></span>
+                ${g.nokta}
+              </span>
+              <span class="cap-info">${g.palet.toFixed(1)}p · ${g.miktar}k</span>
+            </div>
+            <div class="cap-track"><div class="cap-fill" style="width:${p}%;background:${capColor(p)}"></div></div>
+          </div>`;
+            }).join('')}
+        <div class="total-cap-wrap">
+          <div class="total-cap-header">
+            <span class="total-cap-label">Toplam kapasite</span>
+            <span class="total-cap-value" style="color:${capColor(pct)}">${totalPalet.toFixed(1)} / 8</span>
+          </div>
+          <div class="total-track">
+            <div class="total-fill" style="width:${pct}%;background:${capColor(pct)}"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Sipariş durumu</span></div>
+          <div class="doughnut-wrap">
+            <canvas id="statusChart" role="img" aria-label="Açık ve hazır sipariş dağılımı"></canvas>
+            <div class="doughnut-center">
+              <div class="doughnut-big">${totalPalet.toFixed(1)}</div>
+              <div class="doughnut-small">palet</div>
+            </div>
+          </div>
+          <div class="status-legend">
+            <div class="status-leg-row">
+              <span class="status-leg-left"><span class="status-leg-sq" style="background:var(--amber)"></span>Açık</span>
+              <span class="status-leg-val">${waitPalet.toFixed(1)} palet</span>
+            </div>
+            <div class="status-leg-row">
+              <span class="status-leg-left"><span class="status-leg-sq" style="background:var(--green)"></span>Hazır</span>
+              <span class="status-leg-val">${readyPalet.toFixed(1)} palet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Temsilciler</span></div>
+          ${Object.entries(repMap).sort((a, b) => b[1] - a[1]).map(([rep, pal]) => `
+            <div class="rep-row">
+              <span class="rep-dot" style="background:${repColorMap[rep] || '#888'}"></span>
+              <span class="rep-name">${rep.split(' ')[0]}</span>
+              <span class="rep-count">${pal.toFixed(1)}p</span>
+              <div class="rep-bar-wrap">
+                <div class="rep-bar-track">
+                  <div class="rep-bar-fill" style="width:${pal / maxRepPalet * 100}%;background:${repColorMap[rep] || '#888'}"></div>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+            if (statusChartInst) statusChartInst.destroy();
+            statusChartInst = new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [waitPalet, readyPalet],
+                        backgroundColor: ['#f5a623', '#3dd68c'],
+                        borderWidth: 0, hoverOffset: 3
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    cutout: '72%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGE: REPS
+        ═══════════════════════════════════════════ */
+        let repBarChartInst = null;
+
+        function renderReps() {
+            const data = getFiltered();
+            const grouped = groupByNokta(data);
+
+            const repMap = {};
+            grouped.forEach(g => {
+                if (!repMap[g.rep]) repMap[g.rep] = { palet: 0, miktar: 0, noktalar: [], waitPalet: 0, readyPalet: 0 };
+                repMap[g.rep].palet += g.palet;
+                repMap[g.rep].miktar += g.miktar;
+                repMap[g.rep].noktalar.push(g.nokta);
+            });
+            data.forEach(r => {
+                if (repMap[r.rep]) {
+                    if (r.status === 'waiting') repMap[r.rep].waitPalet += r.miktar / r.paletKoli;
+                    else repMap[r.rep].readyPalet += r.miktar / r.paletKoli;
+                }
+            });
+
+            const repLabels = Object.keys(repMap).sort((a, b) => repMap[b].palet - repMap[a].palet);
+
+            document.getElementById('pageContent').innerHTML = `
+    <div class="grid2 fade-in">
+      ${repLabels.map(rep => {
+                const r = repMap[rep];
+                const pct = Math.min(r.palet / 8 * 100, 100);
+                const col = repColorMap[rep] || '#888';
+                return `<div class="panel">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="width:36px;height:36px;border-radius:8px;background:${col}22;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:${col}">${rep.charAt(0)}</div>
+            <div>
+              <div style="font-weight:500;font-size:14px;color:var(--text)">${rep}</div>
+              <div style="font-size:11px;color:var(--text3)">${r.noktalar.length} nokta</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <div style="background:var(--bg3);border-radius:6px;padding:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">PALET</div>
+              <div style="font-size:18px;font-weight:600;color:${col};font-family:'IBM Plex Mono',monospace">${r.palet.toFixed(1)}</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">KOLİ</div>
+              <div style="font-size:18px;font-weight:600;color:var(--text);font-family:'IBM Plex Mono',monospace">${r.miktar}</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">KAPASİTE</div>
+              <div style="font-size:18px;font-weight:600;color:${capColor(pct)};font-family:'IBM Plex Mono',monospace">${Math.round(pct)}%</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:5px">Kapasite doluluk</div>
+          <div class="cap-track" style="height:6px;margin-bottom:10px">
+            <div class="cap-fill" style="width:${pct}%;background:${col}"></div>
+          </div>
+          <div style="display:flex;gap:14px;font-size:11px;color:var(--text3)">
+            <span><span style="color:var(--amber)">▪</span> Açık: ${r.waitPalet.toFixed(1)}p</span>
+            <span><span style="color:var(--green)">▪</span> Hazır: ${r.readyPalet.toFixed(1)}p</span>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--text3)">
+            ${r.noktalar.slice(0, 3).map(n => `<span style="display:inline-block;background:var(--bg4);border-radius:4px;padding:2px 7px;margin:2px 2px 0 0;color:var(--text2)">${n}</span>`).join('')}
+            ${r.noktalar.length > 3 ? `<span style="color:var(--text3)">+${r.noktalar.length - 3}</span>` : ''}
+          </div>
+        </div>`;
+            }).join('')}
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Temsilci karşılaştırması — palet</span></div>
+      <div style="position:relative;height:${Math.max(repLabels.length * 44 + 60, 180)}px">
+        <canvas id="repBarChart" role="img" aria-label="Temsilcilere göre palet karşılaştırması"></canvas>
+      </div>
+    </div>
+  `;
+
+            if (repBarChartInst) repBarChartInst.destroy();
+            repBarChartInst = new Chart(document.getElementById('repBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: repLabels,
+                    datasets: [
+                        { label: 'Açık', data: repLabels.map(r => parseFloat(repMap[r].waitPalet.toFixed(2))), backgroundColor: '#f5a62388', borderRadius: 3 },
+                        { label: 'Hazır', data: repLabels.map(r => parseFloat(repMap[r].readyPalet.toFixed(2))), backgroundColor: '#3dd68c88', borderRadius: 3 }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { stacked: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b93a8', font: { size: 11 } } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#8b93a8', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGE: ORDERS TABLE
+        ═══════════════════════════════════════════ */
+        function renderOrders() {
+            const data = getFiltered();
+            const rows = data.map(r => {
+                const p = r.miktar / r.paletKoli;
+                const pct = Math.min(Math.round(p / 8 * 100), 100);
+                return `<tr>
+      <td style="font-weight:500">${r.nokta}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:5px">
+        <span style="width:6px;height:6px;border-radius:50%;background:${repColorMap[r.rep] || '#888'};display:inline-block"></span>
+        ${r.rep}
+      </span></td>
+      <td style="color:var(--text2)">${r.urun}</td>
+      <td class="mono-sm">${r.miktar}</td>
+      <td class="mono-sm">${p.toFixed(2)}</td>
+      <td><span class="pill ${r.status === 'waiting' ? 'pill-wait' : 'pill-ready'}">${r.status === 'waiting' ? 'Açık' : 'Hazır'}</span></td>
+      <td><span class="cap-pct ${capClass(pct)}">${pct}%</span></td>
+    </tr>`;
+            }).join('') || `<tr><td colspan="7"><div class="empty"><div class="empty-icon">◌</div>Veri bulunamadı</div></td></tr>`;
+
+            document.getElementById('pageContent').innerHTML = `
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <span class="panel-title">${data.length} sipariş kaydı</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nokta</th><th>Temsilci</th><th>Ürün</th>
+              <th>Koli</th><th>Palet</th><th>Durum</th><th>Kapasite %</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+        }
+
+        function setPageDirect(p) {
+            currentPage = p;
+            document.querySelectorAll('.nav-item').forEach((el, i) => {
+                el.classList.toggle('active', ['overview', 'reps', 'orders'][i] === p);
+            });
+            const titles = { overview: 'Genel Bakış', reps: 'Temsilci Analizi', orders: 'Sipariş Detayları' };
+            document.getElementById('pageTitle').textContent = titles[p];
+            renderPage();
+        }
+
+        /* ═══════════════════════════════════════════
+           INIT — render with empty data, wait for Python
+        ═══════════════════════════════════════════ */
+        document.getElementById('pageContent').innerHTML = `
+  <div class="empty" style="margin-top:60px">
+    <div class="empty-icon">◌</div>
+    <div>Veri bekleniyor...</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">Lütfen ana uygulamadan veri yükleyin</div>
+  </div>`;
+    </script>
+</body>
+
+</html>
+"""

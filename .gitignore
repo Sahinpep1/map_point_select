@@ -218,3 +218,5 @@ __marimo__/
 .streamlit/secrets.toml
 
 config.jsonconfig.json
+__pycache__/
+secilen_noktalar_*.json
