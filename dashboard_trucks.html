@@ -1,452 +1,1157 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kamyon Planlayıcı</title>
   <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      --bg:       #0f1117;
-      --bg2:      #161b27;
-      --bg3:      #1e2535;
-      --bg4:      #252d42;
-      --bg5:      #2e3850;
-      --border:   rgba(255,255,255,0.07);
-      --border2:  rgba(255,255,255,0.12);
-      --text:     #e8eaf0;
-      --text2:    #8b93a8;
-      --text3:    #545c72;
-      --blue:     #4f8ef7;
-      --blue-dim: rgba(79,142,247,0.12);
-      --green:    #3dd68c;
-      --green-dim:rgba(61,214,140,0.12);
-      --amber:    #f5a623;
-      --amber-dim:rgba(245,166,35,0.12);
-      --red:      #ff5f5f;
-      --red-dim:  rgba(255,95,95,0.12);
-      --purple:   #a78bfa;
-      --purple-dim:rgba(167,139,250,0.12);
-      --teal:     #2dd4bf;
-      --coral:    #fb7185;
-      --coral-dim:rgba(251,113,133,0.12);
+      --bg: #0f1117;
+      --bg2: #161b27;
+      --bg3: #1e2535;
+      --bg4: #252d42;
+      --bg5: #2e3850;
+      --border: rgba(255, 255, 255, 0.07);
+      --border2: rgba(255, 255, 255, 0.12);
+      --text: #e8eaf0;
+      --text2: #8b93a8;
+      --text3: #545c72;
+      --blue: #4f8ef7;
+      --blue-dim: rgba(79, 142, 247, 0.12);
+      --green: #3dd68c;
+      --green-dim: rgba(61, 214, 140, 0.12);
+      --amber: #f5a623;
+      --amber-dim: rgba(245, 166, 35, 0.12);
+      --red: #ff5f5f;
+      --red-dim: rgba(255, 95, 95, 0.12);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167, 139, 250, 0.12);
+      --teal: #2dd4bf;
+      --coral: #fb7185;
+      --coral-dim: rgba(251, 113, 133, 0.12);
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
-    .mono{font-family:'IBM Plex Mono',monospace}
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace
+    }
 
     /* ── SHELL ── */
-    .shell{display:flex;height:100vh;overflow:hidden}
+    .shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden
+    }
 
     /* ── SIDEBAR ── */
-    .sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column}
-    .sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
-    .logo-text{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--text3);text-transform:uppercase}
-    .logo-name{font-size:15px;font-weight:600;color:var(--text);margin-top:2px}
-    .sidebar-section{padding:12px 0 4px}
-    .sidebar-label{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;padding:0 18px 6px}
-    .nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;color:var(--text2);font-size:13px;border-left:2px solid transparent;transition:all .15s}
-    .nav-item:hover{color:var(--text);background:var(--bg3)}
-    .nav-item.active{color:var(--blue);background:var(--blue-dim);border-left-color:var(--blue)}
-    .nav-icon{font-size:14px;width:16px;text-align:center}
-    .sidebar-bottom{margin-top:auto;padding:16px 18px;border-top:1px solid var(--border)}
-    .live-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--green);letter-spacing:.05em}
-    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column
+    }
+
+    .sidebar-logo {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .logo-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      color: var(--text3);
+      text-transform: uppercase
+    }
+
+    .logo-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 2px
+    }
+
+    .sidebar-section {
+      padding: 12px 0 4px
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      color: var(--text3);
+      text-transform: uppercase;
+      padding: 0 18px 6px
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 18px;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all .15s
+    }
+
+    .nav-item:hover {
+      color: var(--text);
+      background: var(--bg3)
+    }
+
+    .nav-item.active {
+      color: var(--blue);
+      background: var(--blue-dim);
+      border-left-color: var(--blue)
+    }
+
+    .nav-icon {
+      font-size: 14px;
+      width: 16px;
+      text-align: center
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px 18px;
+      border-top: 1px solid var(--border)
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: .05em
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
 
     /* ── TOPBAR ── */
-    .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
-    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-    .topbar-title{font-size:14px;font-weight:500;color:var(--text)}
-    .topbar-controls{display:flex;gap:8px;align-items:center}
-    .btn{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s}
-    .btn:hover{color:var(--text);background:var(--bg4)}
-    .btn-primary{background:var(--blue-dim);color:var(--blue);border-color:rgba(79,142,247,.3)}
-    .btn-primary:hover{background:rgba(79,142,247,.2)}
-    .btn-danger{background:var(--red-dim);color:var(--red);border-color:rgba(255,95,95,.3)}
-    .btn-amber{background:var(--amber-dim);color:var(--amber);border-color:rgba(245,166,35,.3)}
-    .btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(61,214,140,.3)}
-    .btn-sm{padding:3px 9px;font-size:11px}
-    select{background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;font-family:inherit;cursor:pointer;outline:none}
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column
+    }
+
+    .topbar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10
+    }
+
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text)
+    }
+
+    .topbar-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .btn {
+      background: var(--bg3);
+      color: var(--text2);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .btn:hover {
+      color: var(--text);
+      background: var(--bg4)
+    }
+
+    .btn-primary {
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-color: rgba(79, 142, 247, .3)
+    }
+
+    .btn-primary:hover {
+      background: rgba(79, 142, 247, .2)
+    }
+
+    .btn-danger {
+      background: var(--red-dim);
+      color: var(--red);
+      border-color: rgba(255, 95, 95, .3)
+    }
+
+    .btn-amber {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border-color: rgba(245, 166, 35, .3)
+    }
+
+    .btn-green {
+      background: var(--green-dim);
+      color: var(--green);
+      border-color: rgba(61, 214, 140, .3)
+    }
+
+    .btn-sm {
+      padding: 3px 9px;
+      font-size: 11px
+    }
+
+    select {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none
+    }
 
     /* ── CONTENT ── */
-    .content{padding:20px 24px;flex:1}
-    .fade-in{animation:fadeIn .3s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .content {
+      padding: 20px 24px;
+      flex: 1
+    }
+
+    .fade-in {
+      animation: fadeIn .3s ease
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
 
     /* ── PILLS ── */
-    .pill{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px}
-    .pill-wait{background:var(--amber-dim);color:var(--amber)}
-    .pill-ready{background:var(--green-dim);color:var(--green)}
-    .pill-held{background:var(--purple-dim);color:var(--purple)}
-    .pill-merged{background:var(--teal-dim, rgba(45,212,191,.12));color:var(--teal)}
+    .pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px
+    }
+
+    .pill-wait {
+      background: var(--amber-dim);
+      color: var(--amber)
+    }
+
+    .pill-ready {
+      background: var(--green-dim);
+      color: var(--green)
+    }
+
+    .pill-held {
+      background: var(--purple-dim);
+      color: var(--purple)
+    }
+
+    .pill-merged {
+      background: var(--teal-dim, rgba(45, 212, 191, .12));
+      color: var(--teal)
+    }
 
     /* ── KPI GRID ── */
-    .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-    .kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
-    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-    .kpi-card.blue::before{background:var(--blue)}
-    .kpi-card.green::before{background:var(--green)}
-    .kpi-card.amber::before{background:var(--amber)}
-    .kpi-card.purple::before{background:var(--purple)}
-    .kpi-card.teal::before{background:var(--teal)}
-    .kpi-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
-    .kpi-value{font-size:24px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:4px}
-    .kpi-sub{font-size:11px;color:var(--text3)}
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .kpi-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px
+    }
+
+    .kpi-card.blue::before {
+      background: var(--blue)
+    }
+
+    .kpi-card.green::before {
+      background: var(--green)
+    }
+
+    .kpi-card.amber::before {
+      background: var(--amber)
+    }
+
+    .kpi-card.purple::before {
+      background: var(--purple)
+    }
+
+    .kpi-card.teal::before {
+      background: var(--teal)
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 6px
+    }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+      margin-bottom: 4px
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text3)
+    }
 
     /* ── FLEET GRID ── */
-    .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+    .fleet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px
+    }
 
     /* ── TRUCK CARD ── */
-    .truck-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;transition:border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
-    .truck-card:hover{border-color:var(--border2)}
-    .truck-card.drag-over{border-color:var(--blue);box-shadow:0 0 0 2px rgba(79,142,247,.25);background:var(--bg3)}
-    .truck-card.merged{border-color:rgba(45,212,191,.4)}
-    .truck-card.over-cap{border-color:rgba(255,95,95,.5)}
+    .truck-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden
+    }
 
-    .truck-header{padding:12px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-    .truck-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-    .truck-meta{flex:1;min-width:0}
-    .truck-name{font-size:13px;font-weight:600;color:var(--text)}
-    .truck-type{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-    .truck-actions{display:flex;gap:4px}
+    .truck-card:hover {
+      border-color: var(--border2)
+    }
 
-    .truck-body{padding:12px 14px}
+    .truck-card.drag-over {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(79, 142, 247, .25);
+      background: var(--bg3)
+    }
+
+    .truck-card.merged {
+      border-color: rgba(45, 212, 191, .4)
+    }
+
+    .truck-card.over-cap {
+      border-color: rgba(255, 95, 95, .5)
+    }
+
+    .truck-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .truck-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    .truck-meta {
+      flex: 1;
+      min-width: 0
+    }
+
+    .truck-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .truck-type {
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em
+    }
+
+    .truck-actions {
+      display: flex;
+      gap: 4px
+    }
+
+    .truck-body {
+      padding: 12px 14px
+    }
 
     /* capacity bar */
-    .cap-row{margin-bottom:10px}
-    .cap-header{display:flex;justify-content:space-between;margin-bottom:4px}
-    .cap-label{font-size:11px;color:var(--text2)}
-    .cap-nums{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3)}
-    .cap-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
-    .cap-fill{height:100%;border-radius:3px;transition:width .4s ease}
+    .cap-row {
+      margin-bottom: 10px
+    }
+
+    .cap-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px
+    }
+
+    .cap-label {
+      font-size: 11px;
+      color: var(--text2)
+    }
+
+    .cap-nums {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3)
+    }
+
+    .cap-track {
+      height: 6px;
+      background: var(--bg4);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .cap-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .4s ease
+    }
 
     /* route tags inside truck */
-    .routes-area{min-height:36px;display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding:6px;background:var(--bg3);border-radius:6px;border:1px dashed var(--border2);transition:background .2s}
-    .routes-area.drag-target{background:var(--bg4);border-color:var(--blue)}
-    .route-tag{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--text);cursor:grab;transition:all .15s;user-select:none}
-    .route-tag:hover{border-color:var(--border2);background:var(--bg5)}
-    .route-tag.dragging{opacity:.4;cursor:grabbing}
-    .route-tag .tag-rep{color:var(--text3);font-size:10px}
-    .route-tag .tag-pal{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber)}
-    .route-tag .tag-remove{color:var(--text3);font-size:10px;cursor:pointer;margin-left:2px;line-height:1}
-    .route-tag .tag-remove:hover{color:var(--red)}
-    .truck-empty{font-size:11px;color:var(--text3);text-align:center;padding:6px 0}
+    .routes-area {
+      min-height: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+      padding: 6px;
+      background: var(--bg3);
+      border-radius: 6px;
+      border: 1px dashed var(--border2);
+      transition: background .2s
+    }
+
+    .routes-area.drag-target {
+      background: var(--bg4);
+      border-color: var(--blue)
+    }
+
+    .route-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg4);
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: var(--text);
+      cursor: grab;
+      transition: all .15s;
+      user-select: none
+    }
+
+    .route-tag:hover {
+      border-color: var(--border2);
+      background: var(--bg5)
+    }
+
+    .route-tag.dragging {
+      opacity: .4;
+      cursor: grabbing
+    }
+
+    .route-tag .tag-rep {
+      color: var(--text3);
+      font-size: 10px
+    }
+
+    .route-tag .tag-pal {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--amber)
+    }
+
+    .route-tag .tag-remove {
+      color: var(--text3);
+      font-size: 10px;
+      cursor: pointer;
+      margin-left: 2px;
+      line-height: 1
+    }
+
+    .route-tag .tag-remove:hover {
+      color: var(--red)
+    }
+
+    .truck-empty {
+      font-size: 11px;
+      color: var(--text3);
+      text-align: center;
+      padding: 6px 0
+    }
 
     /* ── HOLD PANEL ── */
-    .hold-panel{background:var(--bg2);border:1px solid rgba(167,139,250,.25);border-radius:10px;padding:0;margin-bottom:20px;overflow:hidden}
-    .hold-header{padding:12px 16px;background:var(--purple-dim);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(167,139,250,.15)}
-    .hold-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--purple)}
-    .hold-body{padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;min-height:44px}
-    .hold-empty{font-size:11px;color:var(--text3)}
+    .hold-panel {
+      background: var(--bg2);
+      border: 1px solid rgba(167, 139, 250, .25);
+      border-radius: 10px;
+      padding: 0;
+      margin-bottom: 20px;
+      overflow: hidden
+    }
+
+    .hold-header {
+      padding: 12px 16px;
+      background: var(--purple-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(167, 139, 250, .15)
+    }
+
+    .hold-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--purple)
+    }
+
+    .hold-body {
+      padding: 12px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px
+    }
+
+    .hold-empty {
+      font-size: 11px;
+      color: var(--text3)
+    }
 
     /* ── UNASSIGNED PANEL ── */
-    .unassigned-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:20px}
-    .unassigned-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-    .unassigned-body{padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;min-height:44px}
+    .unassigned-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px
+    }
+
+    .unassigned-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .unassigned-body {
+      padding: 12px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px
+    }
 
     /* ── ROUTE CHIP (unassigned pool) ── */
-    .route-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;cursor:grab;transition:all .15s;user-select:none;position:relative}
-    .route-chip:hover{background:var(--bg4);border-color:var(--border2)}
-    .route-chip.dragging{opacity:.35;cursor:grabbing}
-    .chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .chip-name{font-weight:500;color:var(--text)}
-    .chip-rep{font-size:10px;color:var(--text3)}
-    .chip-pal{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);margin-left:2px}
-    .chip-hold-btn{margin-left:6px;font-size:10px;color:var(--text3);cursor:pointer;padding:1px 5px;border-radius:3px;border:1px solid var(--border);background:none;font-family:inherit;transition:all .15s}
-    .chip-hold-btn:hover{color:var(--purple);border-color:var(--purple)}
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: grab;
+      transition: all .15s;
+      user-select: none;
+      position: relative
+    }
+
+    .route-chip:hover {
+      background: var(--bg4);
+      border-color: var(--border2)
+    }
+
+    .route-chip.dragging {
+      opacity: .35;
+      cursor: grabbing
+    }
+
+    .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .chip-name {
+      font-weight: 500;
+      color: var(--text)
+    }
+
+    .chip-rep {
+      font-size: 10px;
+      color: var(--text3)
+    }
+
+    .chip-pal {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--amber);
+      margin-left: 2px
+    }
+
+    .chip-hold-btn {
+      margin-left: 6px;
+      font-size: 10px;
+      color: var(--text3);
+      cursor: pointer;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: none;
+      font-family: inherit;
+      transition: all .15s
+    }
+
+    .chip-hold-btn:hover {
+      color: var(--purple);
+      border-color: var(--purple)
+    }
 
     /* ── MERGE MODAL ── */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
-    .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;width:480px;max-width:95vw}
-    .modal-title{font-size:14px;font-weight:600;margin-bottom:6px}
-    .modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
-    .modal-section{margin-bottom:14px}
-    .modal-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
-    .modal-row{display:flex;gap:10px;align-items:center}
-    .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      backdrop-filter: blur(3px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn .2s ease
+    }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 24px;
+      width: 480px;
+      max-width: 95vw
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px
+    }
+
+    .modal-sub {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 18px
+    }
+
+    .modal-section {
+      margin-bottom: 14px
+    }
+
+    .modal-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 6px
+    }
+
+    .modal-row {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px
+    }
 
     /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar{width:6px;height:6px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-    ::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg4);
+      border-radius: 3px
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border2)
+    }
 
     /* ── MISC ── */
-    .tbl-wrap{overflow-x:auto}
-    table{width:100%;border-collapse:collapse;font-size:12px}
-    th{text-align:left;padding:7px 10px;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
-    td{padding:8px 10px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle}
-    tr:last-child td{border-bottom:none}
-    tr:hover td{background:var(--bg3)}
-    .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
-    .empty-icon{font-size:32px;margin-bottom:10px}
-    .panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
-    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-    .panel-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
-    .tbl-wrap{overflow-x:auto}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-    .sep{height:1px;background:var(--border);margin:14px 0}
+    .tbl-wrap {
+      overflow-x: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    th {
+      text-align: left;
+      padding: 7px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap
+    }
+
+    td {
+      padding: 8px 10px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle
+    }
+
+    tr:last-child td {
+      border-bottom: none
+    }
+
+    tr:hover td {
+      background: var(--bg3)
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text3);
+      font-size: 13px
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 10px
+    }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text2)
+    }
+
+    .tbl-wrap {
+      overflow-x: auto
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px
+    }
+
+    .sep {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0
+    }
 
     /* status dot */
-    .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px
+    }
   </style>
 </head>
+
 <body>
-<div class="shell">
+  <div class="shell">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-text">Teslimat Sistemi</div>
-      <div class="logo-name">Kamyon Planlayıcı</div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Görünüm</div>
-      <div class="nav-item active" onclick="setPage('trucks')" id="nav-trucks">
-        <span class="nav-icon">🚛</span> Kamyonlar
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-text">Teslimat Sistemi</div>
+        <div class="logo-name">Kamyon Planlayıcı</div>
       </div>
-      <div class="nav-item" onclick="setPage('overview')" id="nav-overview">
-        <span class="nav-icon">▦</span> Genel Bakış
+      <div class="sidebar-section">
+        <div class="sidebar-label">Görünüm</div>
+        <div class="nav-item active" onclick="setPage('trucks')" id="nav-trucks">
+          <span class="nav-icon">🚛</span> Kamyonlar
+        </div>
+        <div class="nav-item" onclick="setPage('overview')" id="nav-overview">
+          <span class="nav-icon">▦</span> Genel Bakış
+        </div>
+        <div class="nav-item" onclick="setPage('orders')" id="nav-orders">
+          <span class="nav-icon">≡</span> Siparişler
+        </div>
       </div>
-      <div class="nav-item" onclick="setPage('orders')" id="nav-orders">
-        <span class="nav-icon">≡</span> Siparişler
+      <div class="sidebar-section">
+        <div class="sidebar-label">Filtre</div>
+      </div>
+      <div style="padding:0 12px 8px">
+        <select id="repFilter" style="width:100%;margin-bottom:6px" onchange="renderPage()">
+          <option value="all">Tüm Temsilciler</option>
+        </select>
+        <select id="statusFilter" style="width:100%" onchange="renderPage()">
+          <option value="all">Tüm Durumlar</option>
+          <option value="waiting">Açık</option>
+          <option value="ready">Hazır</option>
+        </select>
+      </div>
+      <div style="padding:8px 12px">
+        <button class="btn btn-sm" style="width:100%;margin-bottom:4px" onclick="autoAssign()">⚡ Otomatik Ata</button>
+        <button class="btn btn-sm btn-primary" style="width:100%;margin-bottom:4px" onclick="confirmRepAssign()">👤
+          Temsilciye Göre Ata</button>
+        <button class="btn btn-sm" style="width:100%" onclick="clearAll()">✕ Tümünü Temizle</button>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="live-badge">
+          <div class="live-dot"></div> Canlı veri
+        </div>
       </div>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Filtre</div>
-    </div>
-    <div style="padding:0 12px 8px">
-      <select id="repFilter" style="width:100%;margin-bottom:6px" onchange="renderPage()">
-        <option value="all">Tüm Temsilciler</option>
-      </select>
-      <select id="statusFilter" style="width:100%" onchange="renderPage()">
-        <option value="all">Tüm Durumlar</option>
-        <option value="waiting">Açık</option>
-        <option value="ready">Hazır</option>
-      </select>
-    </div>
-    <div style="padding:8px 12px">
-      <button class="btn btn-sm" style="width:100%;margin-bottom:4px" onclick="autoAssign()">⚡ Otomatik Ata</button>
-      <button class="btn btn-sm btn-primary" style="width:100%;margin-bottom:4px" onclick="openRepAssignModal()">👤 Temsilciye Göre Ata</button>
-      <button class="btn btn-sm" style="width:100%" onclick="clearAll()">✕ Tümünü Temizle</button>
-    </div>
-    <div class="sidebar-bottom">
-      <div class="live-badge"><div class="live-dot"></div> Canlı veri</div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <span class="topbar-title" id="pageTitle">Kamyon Planlaması</span>
+        <div class="topbar-controls">
+          <span id="dataTimestamp" style="font-size:11px;color:var(--text3)"></span>
+          <button class="btn btn-amber btn-sm" onclick="exportPlan()">⤓ Dışa Aktar</button>
+          <button class="btn btn-primary btn-sm" onclick="refreshFromPython()">↻ Yenile</button>
+        </div>
+      </div>
+      <div class="content fade-in" id="pageContent"></div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <span class="topbar-title" id="pageTitle">Kamyon Planlaması</span>
-      <div class="topbar-controls">
-        <span id="dataTimestamp" style="font-size:11px;color:var(--text3)"></span>
-        <button class="btn btn-amber btn-sm" onclick="exportPlan()">⤓ Dışa Aktar</button>
-        <button class="btn btn-primary btn-sm" onclick="refreshFromPython()">↻ Yenile</button>
+  <!-- REP-ASSIGN MODAL -->
+  <div id="repAssignModal" class="modal-backdrop" style="display:none">
+    <div class="modal"
+      style="width:540px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden">
+
+      <!-- Fixed header -->
+      <div style="padding:20px 24px 0">
+        <div class="modal-title">👤 Temsilciye Göre Ata</div>
+        <div class="modal-sub" style="margin-bottom:12px">Her temsilcinin siparişleri tek bir kamyona atanır.
+          Selimcan Tuner otomatik olarak 10 palet (T11) kamyonuna yönlendirilir.</div>
+      </div>
+
+      <!-- Scrollable rows -->
+      <div id="repAssignRows" style="flex:1; overflow-y:auto; min-height:0; padding:0 24px"></div>
+
+      <!-- Fixed footer -->
+      <div style="padding:10px 24px 20px; border-top:1px solid var(--border); margin-top:6px; background:var(--bg2)">
+        <div id="repAssignWarnings" style="font-size:11px;color:var(--amber);display:none;margin-bottom:8px"></div>
+        <div class="modal-actions" style="margin-top:0">
+          <button class="btn" onclick="closeRepModal()">İptal</button>
+          <button class="btn btn-primary" onclick="confirmRepAssign()">Uygula</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MERGE MODAL -->
+  <div id="mergeModal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <div class="modal-title">Rota Birleştir</div>
+      <div class="modal-sub">İki rotayı aynı kamyona ata</div>
+      <div class="modal-section">
+        <div class="modal-label">1. Rota</div>
+        <select id="mergeRoute1" style="width:100%"></select>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">2. Rota</div>
+        <select id="mergeRoute2" style="width:100%"></select>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Hedef Kamyon</div>
+        <select id="mergeTruck" style="width:100%"></select>
+      </div>
+      <div id="mergeWarning" style="font-size:11px;color:var(--red);margin-top:8px;display:none"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary" onclick="confirmMerge()">Birleştir</button>
       </div>
     </div>
-    <div class="content fade-in" id="pageContent"></div>
   </div>
-</div>
 
-<!-- REP-ASSIGN MODAL -->
-<div id="repAssignModal" class="modal-backdrop" style="display:none">
-  <div class="modal" style="width:540px">
-    <div class="modal-title">👤 Temsilciye Göre Ata</div>
-    <div class="modal-sub">Her temsilcinin siparişleri tek bir kamyona atanır. Selimcan Tuner otomatik olarak 10 palet (T11) kamyonuna yönlendirilir.</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    /* ════════════════════════════════════════════════
+       DATA & STATE
+    ════════════════════════════════════════════════ */
+    let ALL_DATA = [];
+    let currentPage = 'trucks';
 
-    <div id="repAssignRows" style="max-height:340px;overflow-y:auto;margin-bottom:4px"></div>
+    // Truck fleet definition
+    const TRUCKS = [
+      // 10 standard 8-pallet trucks
+      { id: 'T01', name: 'Kamyon 01', type: 'Standart', cap: 8, color: '#4f8ef7' },
+      { id: 'T02', name: 'Kamyon 02', type: 'Standart', cap: 8, color: '#3dd68c' },
+      { id: 'T03', name: 'Kamyon 03', type: 'Standart', cap: 8, color: '#f5a623' },
+      { id: 'T04', name: 'Kamyon 04', type: 'Standart', cap: 8, color: '#fb7185' },
+      { id: 'T05', name: 'Kamyon 05', type: 'Standart', cap: 8, color: '#a78bfa' },
+      { id: 'T06', name: 'Kamyon 06', type: 'Standart', cap: 8, color: '#2dd4bf' },
+      { id: 'T07', name: 'Kamyon 07', type: 'Standart', cap: 8, color: '#f97316' },
+      { id: 'T08', name: 'Kamyon 08', type: 'Standart', cap: 8, color: '#e879f9' },
+      { id: 'T09', name: 'Kamyon 09', type: 'Standart', cap: 8, color: '#38bdf8' },
+      { id: 'T10', name: 'Kamyon 10', type: 'Standart', cap: 8, color: '#a3e635' },
+      // 1 wholesale 10-pallet
+      { id: 'T11', name: 'Kamyon 11', type: 'Toptancı', cap: 10, color: '#f5a623' },
+      // 1 small 6-pallet
+      { id: 'T12', name: 'Kamyon 12', type: 'Küçük/Ekstra', cap: 6, color: '#545c72' },
+    ];
 
-    <div id="repAssignWarnings" style="margin-top:10px;font-size:11px;color:var(--amber);display:none"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeRepModal()">İptal</button>
-      <button class="btn btn-primary" onclick="confirmRepAssign()">Uygula</button>
-    </div>
-  </div>
-</div>
+    // Assignment state: truckId → array of nokta keys
+    let assignments = {};   // { T01: ['Nokta A', 'Nokta B'], ... }
+    let heldRoutes = [];   // nokta keys held for another day
 
-<!-- MERGE MODAL -->
-<div id="mergeModal" class="modal-backdrop" style="display:none">
-  <div class="modal">
-    <div class="modal-title">Rota Birleştir</div>
-    <div class="modal-sub">İki rotayı aynı kamyona ata</div>
-    <div class="modal-section">
-      <div class="modal-label">1. Rota</div>
-      <select id="mergeRoute1" style="width:100%"></select>
-    </div>
-    <div class="modal-section">
-      <div class="modal-label">2. Rota</div>
-      <select id="mergeRoute2" style="width:100%"></select>
-    </div>
-    <div class="modal-section">
-      <div class="modal-label">Hedef Kamyon</div>
-      <select id="mergeTruck" style="width:100%"></select>
-    </div>
-    <div id="mergeWarning" style="font-size:11px;color:var(--red);margin-top:8px;display:none"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">İptal</button>
-      <button class="btn btn-primary" onclick="confirmMerge()">Birleştir</button>
-    </div>
-  </div>
-</div>
+    // Rep color map
+    const REP_COLORS = ['#4f8ef7', '#3dd68c', '#f5a623', '#fb7185', '#a78bfa', '#2dd4bf', '#f97316', '#e879f9'];
+    let repColorMap = {};
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-/* ════════════════════════════════════════════════
-   DATA & STATE
-════════════════════════════════════════════════ */
-let ALL_DATA = [];
-let currentPage = 'trucks';
+    // Drag state
+    let dragItem = null; // { nokta, fromTruck (null if pool/held) }
 
-// Truck fleet definition
-const TRUCKS = [
-  // 10 standard 8-pallet trucks
-  { id:'T01', name:'Kamyon 01', type:'Standart', cap:8, color:'#4f8ef7' },
-  { id:'T02', name:'Kamyon 02', type:'Standart', cap:8, color:'#3dd68c' },
-  { id:'T03', name:'Kamyon 03', type:'Standart', cap:8, color:'#f5a623' },
-  { id:'T04', name:'Kamyon 04', type:'Standart', cap:8, color:'#fb7185' },
-  { id:'T05', name:'Kamyon 05', type:'Standart', cap:8, color:'#a78bfa' },
-  { id:'T06', name:'Kamyon 06', type:'Standart', cap:8, color:'#2dd4bf' },
-  { id:'T07', name:'Kamyon 07', type:'Standart', cap:8, color:'#f97316' },
-  { id:'T08', name:'Kamyon 08', type:'Standart', cap:8, color:'#e879f9' },
-  { id:'T09', name:'Kamyon 09', type:'Standart', cap:8, color:'#38bdf8' },
-  { id:'T10', name:'Kamyon 10', type:'Standart', cap:8, color:'#a3e635' },
-  // 1 wholesale 10-pallet
-  { id:'T11', name:'Kamyon 11', type:'Toptancı', cap:10, color:'#f5a623' },
-  // 1 small 6-pallet
-  { id:'T12', name:'Kamyon 12', type:'Küçük/Ekstra', cap:6, color:'#545c72' },
-];
+    /* ════════════════════════════════════════════════
+       PYTHON BRIDGE
+    ════════════════════════════════════════════════ */
+    let bridge = null;
+    try {
+      new QWebChannel(qt.webChannelTransport, ch => { bridge = ch.objects.dashBridge; });
+    } catch (e) { }
 
-// Assignment state: truckId → array of nokta keys
-let assignments = {};   // { T01: ['Nokta A', 'Nokta B'], ... }
-let heldRoutes  = [];   // nokta keys held for another day
+    function refreshFromPython() { if (bridge) bridge.requestRefresh(); }
 
-// Rep color map
-const REP_COLORS = ['#4f8ef7','#3dd68c','#f5a623','#fb7185','#a78bfa','#2dd4bf','#f97316','#e879f9'];
-let repColorMap = {};
+    function updateData(jsonStr) {
+      try {
+        ALL_DATA = JSON.parse(jsonStr);
+        const reps = [...new Set(ALL_DATA.map(r => r.rep))].sort();
+        reps.forEach((r, i) => { repColorMap[r] = REP_COLORS[i % REP_COLORS.length]; });
+        buildRepFilter(reps);
+        // Init assignments if empty
+        TRUCKS.forEach(t => { if (!assignments[t.id]) assignments[t.id] = []; });
+        const now = new Date();
+        document.getElementById('dataTimestamp').textContent =
+          now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' güncel';
+        renderPage();
+      } catch (e) { console.error('updateData error:', e); }
+    }
 
-// Drag state
-let dragItem = null; // { nokta, fromTruck (null if pool/held) }
+    function buildRepFilter(reps) {
+      const sel = document.getElementById('repFilter');
+      const cur = sel.value;
+      sel.innerHTML = '<option value="all">Tüm Temsilciler</option>';
+      reps.forEach(r => {
+        const o = document.createElement('option');
+        o.value = r; o.textContent = r;
+        sel.appendChild(o);
+      });
+      if (reps.includes(cur)) sel.value = cur;
+    }
 
-/* ════════════════════════════════════════════════
-   PYTHON BRIDGE
-════════════════════════════════════════════════ */
-let bridge = null;
-try {
-  new QWebChannel(qt.webChannelTransport, ch => { bridge = ch.objects.dashBridge; });
-} catch(e) {}
+    /* ════════════════════════════════════════════════
+       HELPERS
+    ════════════════════════════════════════════════ */
+    // Group raw rows → one entry per nokta (sum pallets)
+    function groupedNoktalar() {
+      const map = {};
+      ALL_DATA.forEach(r => {
+        const k = r.nokta;
+        if (!map[k]) map[k] = { nokta: k, rep: r.rep, palet: 0, miktar: 0, status: r.status };
+        map[k].palet += r.miktar / r.paletKoli;
+        map[k].miktar += r.miktar;
+      });
+      return Object.values(map);
+    }
 
-function refreshFromPython() { if(bridge) bridge.requestRefresh(); }
+    function getFiltered() {
+      const repF = document.getElementById('repFilter')?.value || 'all';
+      const stF = document.getElementById('statusFilter')?.value || 'all';
+      return groupedNoktalar().filter(g =>
+        (repF === 'all' || g.rep === repF) &&
+        (stF === 'all' || g.status === stF)
+      );
+    }
 
-function updateData(jsonStr) {
-  try {
-    ALL_DATA = JSON.parse(jsonStr);
-    const reps = [...new Set(ALL_DATA.map(r=>r.rep))].sort();
-    reps.forEach((r,i) => { repColorMap[r] = REP_COLORS[i % REP_COLORS.length]; });
-    buildRepFilter(reps);
-    // Init assignments if empty
-    TRUCKS.forEach(t => { if(!assignments[t.id]) assignments[t.id] = []; });
-    const now = new Date();
-    document.getElementById('dataTimestamp').textContent =
-      now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) + ' güncel';
-    renderPage();
-  } catch(e){ console.error('updateData error:',e); }
-}
+    // All assigned noktalar (flat)
+    function allAssigned() {
+      return Object.values(assignments).flat();
+    }
 
-function buildRepFilter(reps) {
-  const sel = document.getElementById('repFilter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="all">Tüm Temsilciler</option>';
-  reps.forEach(r => {
-    const o = document.createElement('option');
-    o.value = r; o.textContent = r;
-    sel.appendChild(o);
-  });
-  if(reps.includes(cur)) sel.value = cur;
-}
+    function truckPalets(truckId) {
+      const noktalar = assignments[truckId] || [];
+      const grouped = groupedNoktalar();
+      return noktalar.reduce((s, n) => {
+        const g = grouped.find(x => x.nokta === n);
+        return s + (g ? g.palet : 0);
+      }, 0);
+    }
 
-/* ════════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════════ */
-// Group raw rows → one entry per nokta (sum pallets)
-function groupedNoktalar() {
-  const map = {};
-  ALL_DATA.forEach(r => {
-    const k = r.nokta;
-    if(!map[k]) map[k] = { nokta:k, rep:r.rep, palet:0, miktar:0, status:r.status };
-    map[k].palet += r.miktar / r.paletKoli;
-    map[k].miktar += r.miktar;
-  });
-  return Object.values(map);
-}
+    function capColor(pct) {
+      if (pct > 100) return 'var(--red)';
+      if (pct >= 85) return 'var(--amber)';
+      return 'var(--green)';
+    }
 
-function getFiltered() {
-  const repF = document.getElementById('repFilter')?.value || 'all';
-  const stF  = document.getElementById('statusFilter')?.value || 'all';
-  return groupedNoktalar().filter(g =>
-    (repF==='all' || g.rep===repF) &&
-    (stF==='all'  || g.status===stF)
-  );
-}
+    /* ════════════════════════════════════════════════
+       PAGE ROUTING
+    ════════════════════════════════════════════════ */
+    function setPage(p) {
+      currentPage = p;
+      ['trucks', 'overview', 'orders'].forEach(id => {
+        document.getElementById('nav-' + id)?.classList.toggle('active', id === p);
+      });
+      const titles = { trucks: 'Kamyon Planlaması', overview: 'Genel Bakış', orders: 'Sipariş Detayları' };
+      document.getElementById('pageTitle').textContent = titles[p] || p;
+      renderPage();
+    }
 
-// All assigned noktalar (flat)
-function allAssigned() {
-  return Object.values(assignments).flat();
-}
+    function renderPage() {
+      if (currentPage === 'trucks') renderTrucks();
+      else if (currentPage === 'overview') renderOverview();
+      else if (currentPage === 'orders') renderOrdersTable();
+    }
 
-function truckPalets(truckId) {
-  const noktalar = assignments[truckId] || [];
-  const grouped  = groupedNoktalar();
-  return noktalar.reduce((s, n) => {
-    const g = grouped.find(x=>x.nokta===n);
-    return s + (g ? g.palet : 0);
-  }, 0);
-}
+    /* ════════════════════════════════════════════════
+       TRUCKS PAGE
+    ════════════════════════════════════════════════ */
+    function renderTrucks() {
+      const grouped = groupedNoktalar();
+      const assigned = allAssigned();
+      const held = new Set(heldRoutes);
 
-function capColor(pct) {
-  if(pct > 100) return 'var(--red)';
-  if(pct >= 85)  return 'var(--amber)';
-  return 'var(--green)';
-}
+      // KPIs
+      const totalPalets = grouped.reduce((s, g) => s + g.palet, 0);
+      const totalCap = TRUCKS.reduce((s, t) => s + t.cap, 0);
+      const assignedCount = assigned.length;
+      const unassignedRoutes = grouped.filter(g => !assigned.includes(g.nokta) && !held.has(g.nokta));
+      const heldPalets = grouped.filter(g => held.has(g.nokta)).reduce((s, g) => s + g.palet, 0);
+      const usedTrucks = TRUCKS.filter(t => (assignments[t.id] || []).length > 0).length;
 
-/* ════════════════════════════════════════════════
-   PAGE ROUTING
-════════════════════════════════════════════════ */
-function setPage(p) {
-  currentPage = p;
-  ['trucks','overview','orders'].forEach(id => {
-    document.getElementById('nav-'+id)?.classList.toggle('active', id===p);
-  });
-  const titles = { trucks:'Kamyon Planlaması', overview:'Genel Bakış', orders:'Sipariş Detayları' };
-  document.getElementById('pageTitle').textContent = titles[p] || p;
-  renderPage();
-}
-
-function renderPage() {
-  if(currentPage==='trucks')   renderTrucks();
-  else if(currentPage==='overview') renderOverview();
-  else if(currentPage==='orders')   renderOrdersTable();
-}
-
-/* ════════════════════════════════════════════════
-   TRUCKS PAGE
-════════════════════════════════════════════════ */
-function renderTrucks() {
-  const grouped  = groupedNoktalar();
-  const assigned = allAssigned();
-  const held     = new Set(heldRoutes);
-
-  // KPIs
-  const totalPalets = grouped.reduce((s,g)=>s+g.palet,0);
-  const totalCap    = TRUCKS.reduce((s,t)=>s+t.cap,0);
-  const assignedCount = assigned.length;
-  const unassignedRoutes = grouped.filter(g=>!assigned.includes(g.nokta) && !held.has(g.nokta));
-  const heldPalets = grouped.filter(g=>held.has(g.nokta)).reduce((s,g)=>s+g.palet,0);
-  const usedTrucks  = TRUCKS.filter(t=>(assignments[t.id]||[]).length>0).length;
-
-  document.getElementById('pageContent').innerHTML = `
+      document.getElementById('pageContent').innerHTML = `
   <div class="kpi-grid fade-in">
     <div class="kpi-card blue">
       <div class="kpi-label">Toplam Palet</div>
@@ -461,7 +1166,7 @@ function renderTrucks() {
     <div class="kpi-card amber">
       <div class="kpi-label">Bekleyen Rota</div>
       <div class="kpi-value" style="color:var(--amber)">${unassignedRoutes.length}</div>
-      <div class="kpi-sub">${unassignedRoutes.reduce((s,g)=>s+g.palet,0).toFixed(1)} palet</div>
+      <div class="kpi-sub">${unassignedRoutes.reduce((s, g) => s + g.palet, 0).toFixed(1)} palet</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-label">Ertesi Güne</div>
@@ -483,7 +1188,7 @@ function renderTrucks() {
 
   <!-- Action buttons row -->
   <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <button class="btn btn-primary" onclick="openRepAssignModal()">👤 Temsilciye Göre Ata</button>
+    <button class="btn btn-primary" onclick="confirmRepAssign()">👤 Temsilciye Göre Ata</button>
     <button class="btn btn-primary" onclick="openMergeModal()">⇌ Rota Birleştir</button>
     <button class="btn" onclick="autoAssign()" style="color:var(--green)">⚡ Otomatik Doldur</button>
   </div>
@@ -494,11 +1199,11 @@ function renderTrucks() {
   </div>
   `;
 
-  initDragDrop();
-}
+      initDragDrop();
+    }
 
-function renderUnassignedPool(unassigned) {
-  if(!unassigned.length) return `
+    function renderUnassignedPool(unassigned) {
+      if (!unassigned.length) return `
   <div class="unassigned-panel" style="margin-bottom:14px">
     <div class="unassigned-header">
       <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)">📦 Atanmamış Rotalar</span>
@@ -506,20 +1211,20 @@ function renderUnassignedPool(unassigned) {
     <div class="unassigned-body"><span style="font-size:11px;color:var(--green)">✓ Tüm rotalar atandı</span></div>
   </div>`;
 
-  const chips = unassigned.map(g => `
+      const chips = unassigned.map(g => `
     <div class="route-chip"
          draggable="true"
          data-nokta="${esc(g.nokta)}"
          data-from="pool"
          id="chip-${esc(g.nokta)}">
-      <span class="chip-dot" style="background:${repColorMap[g.rep]||'#888'}"></span>
+      <span class="chip-dot" style="background:${repColorMap[g.rep] || '#888'}"></span>
       <span class="chip-name">${g.nokta}</span>
       <span class="chip-rep">${g.rep.split(' ')[0]}</span>
       <span class="chip-pal">${g.palet.toFixed(1)}p</span>
       <button class="chip-hold-btn" onclick="holdRoute('${esc(g.nokta)}',event)" title="Ertesi güne ert">⏸</button>
     </div>`).join('');
 
-  return `
+      return `
   <div class="unassigned-panel" style="margin-bottom:14px">
     <div class="unassigned-header">
       <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)">📦 Atanmamış Rotalar</span>
@@ -527,23 +1232,23 @@ function renderUnassignedPool(unassigned) {
     </div>
     <div class="unassigned-body" id="pool-area">${chips}</div>
   </div>`;
-}
+    }
 
-function renderHeldPanel(grouped) {
-  const heldItems = grouped.filter(g=>heldRoutes.includes(g.nokta));
-  const chips = heldItems.map(g => `
+    function renderHeldPanel(grouped) {
+      const heldItems = grouped.filter(g => heldRoutes.includes(g.nokta));
+      const chips = heldItems.map(g => `
     <div class="route-chip" style="border-color:rgba(167,139,250,.3)"
          draggable="true"
          data-nokta="${esc(g.nokta)}"
          data-from="held">
-      <span class="chip-dot" style="background:${repColorMap[g.rep]||'#888'}"></span>
+      <span class="chip-dot" style="background:${repColorMap[g.rep] || '#888'}"></span>
       <span class="chip-name">${g.nokta}</span>
       <span class="chip-rep">${g.rep.split(' ')[0]}</span>
       <span class="chip-pal">${g.palet.toFixed(1)}p</span>
       <button class="chip-hold-btn" onclick="unHoldRoute('${esc(g.nokta)}',event)" title="Bugüne al" style="color:var(--green)">▶</button>
     </div>`).join('');
 
-  return `
+      return `
   <div class="hold-panel">
     <div class="hold-header">
       <span class="hold-title">⏸ Ertesi Güne Ertelenenler</span>
@@ -553,33 +1258,33 @@ function renderHeldPanel(grouped) {
       ${heldItems.length ? chips : '<span class="hold-empty">Ertelenen rota yok</span>'}
     </div>
   </div>`;
-}
+    }
 
-function renderTruckCard(truck, grouped) {
-  const assigned = assignments[truck.id] || [];
-  const usedPal  = truckPalets(truck.id);
-  const pct      = Math.min((usedPal / truck.cap) * 100, 110);
-  const overCap  = usedPal > truck.cap;
-  const merged   = assigned.length > 1;
-  const typeIcon = truck.type==='Toptancı' ? '🏭' : truck.type==='Küçük/Ekstra' ? '🛵' : '🚛';
+    function renderTruckCard(truck, grouped) {
+      const assigned = assignments[truck.id] || [];
+      const usedPal = truckPalets(truck.id);
+      const pct = Math.min((usedPal / truck.cap) * 100, 110);
+      const overCap = usedPal > truck.cap;
+      const merged = assigned.length > 1;
+      const typeIcon = truck.type === 'Toptancı' ? '🏭' : truck.type === 'Küçük/Ekstra' ? '🛵' : '🚛';
 
-  const tags = assigned.map(n => {
-    const g = grouped.find(x=>x.nokta===n);
-    if(!g) return '';
-    return `<div class="route-tag"
+      const tags = assigned.map(n => {
+        const g = grouped.find(x => x.nokta === n);
+        if (!g) return '';
+        return `<div class="route-tag"
           draggable="true"
           data-nokta="${esc(n)}"
           data-from="${truck.id}">
-      <span style="width:6px;height:6px;border-radius:50%;background:${repColorMap[g.rep]||'#888'};flex-shrink:0"></span>
+      <span style="width:6px;height:6px;border-radius:50%;background:${repColorMap[g.rep] || '#888'};flex-shrink:0"></span>
       <span>${n}</span>
       <span class="tag-rep">${g.rep.split(' ')[0]}</span>
       <span class="tag-pal">${g.palet.toFixed(1)}p</span>
       <span class="tag-remove" onclick="removeFromTruck('${truck.id}','${esc(n)}',event)">✕</span>
     </div>`;
-  }).join('');
+      }).join('');
 
-  return `
-  <div class="truck-card ${overCap?'over-cap':''} ${merged?'merged':''}"
+      return `
+  <div class="truck-card ${overCap ? 'over-cap' : ''} ${merged ? 'merged' : ''}"
        id="truck-${truck.id}"
        data-truck="${truck.id}">
     <div class="truck-header">
@@ -598,10 +1303,10 @@ function renderTruckCard(truck, grouped) {
       <div class="cap-row">
         <div class="cap-header">
           <span class="cap-label">Doluluk</span>
-          <span class="cap-nums">${usedPal.toFixed(1)} / ${truck.cap} palet${overCap?' ⚠ TAŞIYOR':''}</span>
+          <span class="cap-nums">${usedPal.toFixed(1)} / ${truck.cap} palet${overCap ? ' ⚠ TAŞIYOR' : ''}</span>
         </div>
         <div class="cap-track">
-          <div class="cap-fill" style="width:${Math.min(pct,100)}%;background:${capColor(pct)}"></div>
+          <div class="cap-fill" style="width:${Math.min(pct, 100)}%;background:${capColor(pct)}"></div>
         </div>
       </div>
       <div class="routes-area" id="drop-${truck.id}" data-truck="${truck.id}">
@@ -609,409 +1314,441 @@ function renderTruckCard(truck, grouped) {
       </div>
     </div>
   </div>`;
-}
+    }
 
-/* ════════════════════════════════════════════════
-   DRAG & DROP
-════════════════════════════════════════════════ */
-function initDragDrop() {
-  // Draggable sources
-  document.querySelectorAll('[draggable="true"]').forEach(el => {
-    el.addEventListener('dragstart', e => {
-      dragItem = { nokta: el.dataset.nokta, from: el.dataset.from };
-      el.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', el.dataset.nokta);
-    });
-    el.addEventListener('dragend', e => {
-      el.classList.remove('dragging');
-      document.querySelectorAll('.drag-over,.drag-target').forEach(x=>{x.classList.remove('drag-over','drag-target')});
-    });
-  });
-
-  // Drop targets: truck drop zones
-  document.querySelectorAll('.routes-area').forEach(zone => {
-    zone.addEventListener('dragover', e => {
-      e.preventDefault();
-      zone.classList.add('drag-target');
-      const card = zone.closest('.truck-card');
-      if(card) card.classList.add('drag-over');
-    });
-    zone.addEventListener('dragleave', e => {
-      zone.classList.remove('drag-target');
-      const card = zone.closest('.truck-card');
-      if(card) card.classList.remove('drag-over');
-    });
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-target');
-      const card = zone.closest('.truck-card');
-      if(card) card.classList.remove('drag-over');
-      if(!dragItem) return;
-      const targetTruck = zone.dataset.truck;
-      moveToTruck(dragItem.nokta, dragItem.from, targetTruck);
-      dragItem = null;
-    });
-  });
-
-  // Drop on pool (unassign)
-  const pool = document.getElementById('pool-area');
-  if(pool) {
-    pool.addEventListener('dragover', e => { e.preventDefault(); pool.style.background='var(--bg4)'; });
-    pool.addEventListener('dragleave', ()=>{ pool.style.background=''; });
-    pool.addEventListener('drop', e => {
-      e.preventDefault();
-      pool.style.background='';
-      if(!dragItem) return;
-      unassignRoute(dragItem.nokta, dragItem.from);
-      dragItem = null;
-    });
-  }
-
-  // Drop on held area
-  const heldArea = document.getElementById('held-area');
-  if(heldArea) {
-    heldArea.addEventListener('dragover', e => { e.preventDefault(); heldArea.style.background='var(--bg4)'; });
-    heldArea.addEventListener('dragleave', ()=>{ heldArea.style.background=''; });
-    heldArea.addEventListener('drop', e => {
-      e.preventDefault();
-      heldArea.style.background='';
-      if(!dragItem) return;
-      holdRoute(dragItem.nokta, null);
-      dragItem = null;
-    });
-  }
-}
-
-function moveToTruck(nokta, fromTruck, targetTruck) {
-  // Remove from source
-  if(fromTruck && fromTruck !== 'pool' && fromTruck !== 'held') {
-    assignments[fromTruck] = (assignments[fromTruck]||[]).filter(n=>n!==nokta);
-  }
-  // Remove from held if there
-  heldRoutes = heldRoutes.filter(n=>n!==nokta);
-  // Add to target (avoid duplicates)
-  if(!(assignments[targetTruck]||[]).includes(nokta)) {
-    assignments[targetTruck] = [...(assignments[targetTruck]||[]), nokta];
-  }
-  renderPage();
-}
-
-function unassignRoute(nokta, fromTruck) {
-  if(fromTruck && fromTruck !== 'pool' && fromTruck !== 'held') {
-    assignments[fromTruck] = (assignments[fromTruck]||[]).filter(n=>n!==nokta);
-  }
-  heldRoutes = heldRoutes.filter(n=>n!==nokta);
-  renderPage();
-}
-
-function removeFromTruck(truckId, nokta, e) {
-  e && e.stopPropagation();
-  assignments[truckId] = (assignments[truckId]||[]).filter(n=>n!==nokta);
-  renderPage();
-}
-
-function holdRoute(nokta, e) {
-  e && e.stopPropagation();
-  // Remove from any truck
-  TRUCKS.forEach(t => { assignments[t.id] = (assignments[t.id]||[]).filter(n=>n!==nokta); });
-  if(!heldRoutes.includes(nokta)) heldRoutes.push(nokta);
-  renderPage();
-}
-
-function unHoldRoute(nokta, e) {
-  e && e.stopPropagation();
-  heldRoutes = heldRoutes.filter(n=>n!==nokta);
-  renderPage();
-}
-
-function clearTruck(truckId) {
-  assignments[truckId] = [];
-  renderPage();
-}
-
-function clearAll() {
-  TRUCKS.forEach(t=>{ assignments[t.id]=[]; });
-  heldRoutes = [];
-  renderPage();
-}
-
-/* ════════════════════════════════════════════════
-   AUTO-ASSIGN (greedy bin-packing)
-════════════════════════════════════════════════ */
-function autoAssign() {
-  const grouped = groupedNoktalar();
-  const assigned = allAssigned();
-  const held = new Set(heldRoutes);
-  // Get unassigned pool
-  let pool = grouped
-    .filter(g => !assigned.includes(g.nokta) && !held.has(g.nokta))
-    .sort((a,b) => b.palet - a.palet); // largest first
-
-  // Greedy: assign to truck with most remaining cap that fits
-  pool.forEach(g => {
-    // Find best truck (most full that still fits)
-    let best = null, bestFill = -1;
-    TRUCKS.forEach(t => {
-      const used = truckPalets(t.id);
-      const rem  = t.cap - used;
-      if(rem >= g.palet && used > bestFill) {
-        best = t.id; bestFill = used;
-      }
-    });
-    // If nothing fits, find truck with most space
-    if(!best) {
-      let maxRem = -1;
-      TRUCKS.forEach(t => {
-        const rem = t.cap - truckPalets(t.id);
-        if(rem > maxRem) { maxRem = rem; best = t.id; }
+    /* ════════════════════════════════════════════════
+       DRAG & DROP
+    ════════════════════════════════════════════════ */
+    function initDragDrop() {
+      // Draggable sources
+      document.querySelectorAll('[draggable="true"]').forEach(el => {
+        el.addEventListener('dragstart', e => {
+          dragItem = { nokta: el.dataset.nokta, from: el.dataset.from };
+          el.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', el.dataset.nokta);
+        });
+        el.addEventListener('dragend', e => {
+          el.classList.remove('dragging');
+          document.querySelectorAll('.drag-over,.drag-target').forEach(x => { x.classList.remove('drag-over', 'drag-target') });
+        });
       });
+
+      // Drop targets: truck drop zones
+      document.querySelectorAll('.routes-area').forEach(zone => {
+        zone.addEventListener('dragover', e => {
+          e.preventDefault();
+          zone.classList.add('drag-target');
+          const card = zone.closest('.truck-card');
+          if (card) card.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', e => {
+          zone.classList.remove('drag-target');
+          const card = zone.closest('.truck-card');
+          if (card) card.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', e => {
+          e.preventDefault();
+          zone.classList.remove('drag-target');
+          const card = zone.closest('.truck-card');
+          if (card) card.classList.remove('drag-over');
+          if (!dragItem) return;
+          const targetTruck = zone.dataset.truck;
+          moveToTruck(dragItem.nokta, dragItem.from, targetTruck);
+          dragItem = null;
+        });
+      });
+
+      // Drop on pool (unassign)
+      const pool = document.getElementById('pool-area');
+      if (pool) {
+        pool.addEventListener('dragover', e => { e.preventDefault(); pool.style.background = 'var(--bg4)'; });
+        pool.addEventListener('dragleave', () => { pool.style.background = ''; });
+        pool.addEventListener('drop', e => {
+          e.preventDefault();
+          pool.style.background = '';
+          if (!dragItem) return;
+          unassignRoute(dragItem.nokta, dragItem.from);
+          dragItem = null;
+        });
+      }
+
+      // Drop on held area
+      const heldArea = document.getElementById('held-area');
+      if (heldArea) {
+        heldArea.addEventListener('dragover', e => { e.preventDefault(); heldArea.style.background = 'var(--bg4)'; });
+        heldArea.addEventListener('dragleave', () => { heldArea.style.background = ''; });
+        heldArea.addEventListener('drop', e => {
+          e.preventDefault();
+          heldArea.style.background = '';
+          if (!dragItem) return;
+          holdRoute(dragItem.nokta, null);
+          dragItem = null;
+        });
+      }
     }
-    if(best && !(assignments[best]||[]).includes(g.nokta)) {
-      assignments[best] = [...(assignments[best]||[]), g.nokta];
+
+    function moveToTruck(nokta, fromTruck, targetTruck) {
+      // Remove from source
+      if (fromTruck && fromTruck !== 'pool' && fromTruck !== 'held') {
+        assignments[fromTruck] = (assignments[fromTruck] || []).filter(n => n !== nokta);
+      }
+      // Remove from held if there
+      heldRoutes = heldRoutes.filter(n => n !== nokta);
+      // Add to target (avoid duplicates)
+      if (!(assignments[targetTruck] || []).includes(nokta)) {
+        assignments[targetTruck] = [...(assignments[targetTruck] || []), nokta];
+      }
+      renderPage();
     }
-  });
-  renderPage();
-}
 
-/* ════════════════════════════════════════════════
-   REP-BASED ASSIGN
-════════════════════════════════════════════════ */
-const SELIMCAN_REP   = 'selimcan tuner';   // matched case-insensitively
-const SELIMCAN_TRUCK = 'T11';              // 10-pallet wholesale truck
-
-// Pending rep→truck map built in the modal, confirmed on click
-let _repAssignPlan = {};
-
-function openRepAssignModal() {
-  const grouped = groupedNoktalar();
-  const reps    = [...new Set(grouped.map(g => g.rep))].sort();
-
-  // Build a suggested truck for each rep
-  // Selimcan → T11 always; others → next free standard truck (T01-T10)
-  const stdTrucks  = TRUCKS.filter(t => t.type === 'Standart').map(t => t.id);
-  let   truckQueue = [...stdTrucks]; // we'll pop from this
-
-  _repAssignPlan = {};
-
-  // First pass: assign Selimcan
-  reps.forEach(rep => {
-    if(rep.toLowerCase() === SELIMCAN_REP) {
-      _repAssignPlan[rep] = SELIMCAN_TRUCK;
+    function unassignRoute(nokta, fromTruck) {
+      if (fromTruck && fromTruck !== 'pool' && fromTruck !== 'held') {
+        assignments[fromTruck] = (assignments[fromTruck] || []).filter(n => n !== nokta);
+      }
+      heldRoutes = heldRoutes.filter(n => n !== nokta);
+      renderPage();
     }
-  });
 
-  // Second pass: rest of reps get standard trucks in order
-  reps.forEach(rep => {
-    if(_repAssignPlan[rep]) return; // already assigned
-    _repAssignPlan[rep] = truckQueue.shift() || 'T12'; // fallback to small if somehow >10 reps
-  });
+    function removeFromTruck(truckId, nokta, e) {
+      e && e.stopPropagation();
+      assignments[truckId] = (assignments[truckId] || []).filter(n => n !== nokta);
+      renderPage();
+    }
 
-  // Build modal rows
-  const rowsHtml = reps.map(rep => {
-    const repData  = grouped.filter(g => g.rep === rep);
-    const totPal   = repData.reduce((s,g) => s+g.palet, 0);
-    const nokCount = repData.length;
-    const isSelim  = rep.toLowerCase() === SELIMCAN_REP;
-    const color    = repColorMap[rep] || '#888';
+    function holdRoute(nokta, e) {
+      e && e.stopPropagation();
+      // Remove from any truck
+      TRUCKS.forEach(t => { assignments[t.id] = (assignments[t.id] || []).filter(n => n !== nokta); });
+      if (!heldRoutes.includes(nokta)) heldRoutes.push(nokta);
+      renderPage();
+    }
 
-    // Truck options — for Selimcan lock to T11, others can pick any
-    const truckOpts = TRUCKS.map(t => {
-      const used = truckPalets(t.id);
-      const over = (used + totPal) > t.cap;
-      return `<option value="${t.id}" ${_repAssignPlan[rep]===t.id?'selected':''} ${over?'style="color:var(--amber)"':''}>
-        ${t.name} (${t.cap}p · ${t.type})${over?' ⚠':''}
+    function unHoldRoute(nokta, e) {
+      e && e.stopPropagation();
+      heldRoutes = heldRoutes.filter(n => n !== nokta);
+      renderPage();
+    }
+
+    function clearTruck(truckId) {
+      assignments[truckId] = [];
+      renderPage();
+    }
+
+    function clearAll() {
+      TRUCKS.forEach(t => { assignments[t.id] = []; });
+      heldRoutes = [];
+      renderPage();
+    }
+
+    /* ════════════════════════════════════════════════
+       AUTO-ASSIGN (greedy bin-packing)
+    ════════════════════════════════════════════════ */
+    function autoAssign() {
+      const grouped = groupedNoktalar();
+      const assigned = allAssigned();
+      const held = new Set(heldRoutes);
+      // Get unassigned pool
+      let pool = grouped
+        .filter(g => !assigned.includes(g.nokta) && !held.has(g.nokta))
+        .sort((a, b) => b.palet - a.palet); // largest first
+
+      // Greedy: assign to truck with most remaining cap that fits
+      pool.forEach(g => {
+        // Find best truck (most full that still fits)
+        let best = null, bestFill = -1;
+        TRUCKS.forEach(t => {
+          const used = truckPalets(t.id);
+          const rem = t.cap - used;
+          if (rem >= g.palet && used > bestFill) {
+            best = t.id; bestFill = used;
+          }
+        });
+        // If nothing fits, find truck with most space
+        if (!best) {
+          let maxRem = -1;
+          TRUCKS.forEach(t => {
+            const rem = t.cap - truckPalets(t.id);
+            if (rem > maxRem) { maxRem = rem; best = t.id; }
+          });
+        }
+        if (best && !(assignments[best] || []).includes(g.nokta)) {
+          assignments[best] = [...(assignments[best] || []), g.nokta];
+        }
+      });
+      renderPage();
+    }
+
+    /* ════════════════════════════════════════════════
+       REP-BASED ASSIGN
+    ════════════════════════════════════════════════ */
+    const SELIMCAN_REP = 'SELİMCAN TUNER';   // matched case-insensitively
+    const SELIMCAN_TRUCK = 'T11';              // 10-pallet wholesale truck
+
+    // Pending rep→truck map — populated by buildRepAssignPlan()
+    let _repAssignPlan = {};
+
+    // ── Shared helper: builds the default rep→truck plan ──────────────────
+    // Selimcan → T11 always; others → standard trucks T01-T10 in order.
+    // Can be called without opening the modal.
+    function buildRepAssignPlan() {
+      const reps = [...new Set(ALL_DATA.map(r => r.rep))].sort();
+      const stdTrucks = TRUCKS.filter(t => t.type === 'Standart').map(t => t.id);
+      const truckQueue = [...stdTrucks];
+
+      _repAssignPlan = {};
+
+      // First pass: Selimcan
+      reps.forEach(rep => {
+        if (rep.toUpperCase() === SELIMCAN_REP.toUpperCase()) {
+          _repAssignPlan[rep] = SELIMCAN_TRUCK;
+        }
+      });
+      // Second pass: everyone else
+      reps.forEach(rep => {
+        if (_repAssignPlan[rep]) return;
+        _repAssignPlan[rep] = truckQueue.shift() || 'T12'; // T12 fallback if >10 reps
+      });
+
+      return reps; // convenience: return sorted rep list
+    }
+
+    // ── Modal version: shows the plan with editable dropdowns ─────────────
+    function openRepAssignModal() {
+      const grouped = groupedNoktalar();
+      const reps = buildRepAssignPlan(); // build default plan first
+
+      // Build modal rows
+      const rowsHtml = reps.map(rep => {
+        const repNoktaSet = new Set(ALL_DATA.filter(r => r.rep === rep).map(r => r.nokta));
+        const nokCount = repNoktaSet.size;
+        const repData = grouped.filter(g => repNoktaSet.has(g.nokta));
+        const totPal = repData.reduce((s, g) => s + g.palet, 0);
+        const isSelim = rep.toUpperCase() === SELIMCAN_REP.toUpperCase();
+        const color = repColorMap[rep] || '#888';
+
+        const truckOpts = TRUCKS.map(t => {
+          const used = truckPalets(t.id);
+          const over = (used + totPal) > t.cap;
+          return `<option value="${t.id}" ${_repAssignPlan[rep] === t.id ? 'selected' : ''} ${over ? 'style="color:var(--amber)"' : ''}>
+        ${t.name} (${t.cap}p · ${t.type})${over ? ' ⚠' : ''}
       </option>`;
-    }).join('');
+        }).join('');
 
-    return `
+        return `
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
       <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:500;color:var(--text)">${rep}${isSelim?' <span style="font-size:10px;color:var(--amber);background:var(--amber-dim);padding:1px 6px;border-radius:3px;margin-left:4px">Toptancı</span>':''}</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text)">${rep}${isSelim ? ' <span style="font-size:10px;color:var(--amber);background:var(--amber-dim);padding:1px 6px;border-radius:3px;margin-left:4px">Toptancı</span>' : ''}</div>
         <div style="font-size:10px;color:var(--text3)">${nokCount} nokta · ${totPal.toFixed(1)} palet</div>
       </div>
-      <select id="repTruck_${encodeRep(rep)}" style="width:180px;font-size:11px" ${isSelim?'disabled':''} onchange="onRepTruckChange()">
+      <select id="repTruck_${encodeRep(rep)}" style="width:180px;font-size:11px" ${isSelim ? 'disabled' : ''} onchange="onRepTruckChange()">
         ${truckOpts}
       </select>
     </div>`;
-  }).join('');
+      }).join('');
 
-  document.getElementById('repAssignRows').innerHTML = rowsHtml;
-  document.getElementById('repAssignWarnings').style.display = 'none';
-  document.getElementById('repAssignModal').style.display = 'flex';
-  onRepTruckChange(); // initial warning check
-}
-
-function encodeRep(rep) {
-  // Safe ID fragment from rep name
-  return rep.replace(/[^a-zA-Z0-9]/g,'_');
-}
-
-function onRepTruckChange() {
-  const grouped = groupedNoktalar();
-  const reps    = [...new Set(grouped.map(g => g.rep))].sort();
-
-  // Read current selections
-  const plan = {};
-  reps.forEach(rep => {
-    const el = document.getElementById('repTruck_' + encodeRep(rep));
-    plan[rep] = el ? el.value : _repAssignPlan[rep];
-  });
-
-  // Check for duplicate truck assignments
-  const truckUsedBy = {};
-  reps.forEach(rep => {
-    const tid = plan[rep];
-    if(!truckUsedBy[tid]) truckUsedBy[tid] = [];
-    truckUsedBy[tid].push(rep);
-  });
-
-  // Check capacity
-  const warnings = [];
-  Object.entries(truckUsedBy).forEach(([tid, repList]) => {
-    const truck   = TRUCKS.find(t=>t.id===tid);
-    if(!truck) return;
-    const totPal  = repList.reduce((s,rep) => {
-      return s + grouped.filter(g=>g.rep===rep).reduce((ss,g)=>ss+g.palet, 0);
-    }, 0);
-    if(repList.length > 1) {
-      warnings.push(`⚠ ${truck.name}: ${repList.join(' + ')} aynı kamyona atandı (${totPal.toFixed(1)} palet)`);
+      document.getElementById('repAssignRows').innerHTML = rowsHtml;
+      document.getElementById('repAssignWarnings').style.display = 'none';
+      document.getElementById('repAssignModal').style.display = 'flex';
+      onRepTruckChange();
     }
-    if(totPal > truck.cap) {
-      warnings.push(`⛔ ${truck.name} kapasitesi aşılıyor: ${totPal.toFixed(1)} / ${truck.cap} palet`);
+
+    function encodeRep(rep) {
+      return rep.replace(/[^a-zA-Z0-9]/g, '_');
     }
-  });
 
-  const warnEl = document.getElementById('repAssignWarnings');
-  if(warnings.length) {
-    warnEl.innerHTML = warnings.join('<br>');
-    warnEl.style.display = 'block';
-  } else {
-    warnEl.style.display = 'none';
-  }
+    function onRepTruckChange() {
+      const grouped = groupedNoktalar();
+      const reps = [...new Set(ALL_DATA.map(r => r.rep))].sort();
 
-  _repAssignPlan = plan;
-}
+      const plan = {};
+      reps.forEach(rep => {
+        const el = document.getElementById('repTruck_' + encodeRep(rep));
+        plan[rep] = el ? el.value : _repAssignPlan[rep];
+      });
 
-function confirmRepAssign() {
-  const grouped = groupedNoktalar();
-  const held    = new Set(heldRoutes);
+      const truckUsedBy = {};
+      reps.forEach(rep => {
+        const tid = plan[rep];
+        if (!truckUsedBy[tid]) truckUsedBy[tid] = [];
+        truckUsedBy[tid].push(rep);
+      });
 
-  // Clear all current assignments first
-  TRUCKS.forEach(t => { assignments[t.id] = []; });
+      const warnings = [];
+      Object.entries(truckUsedBy).forEach(([tid, repList]) => {
+        const truck = TRUCKS.find(t => t.id === tid);
+        if (!truck) return;
+        const totPal = repList.reduce((s, rep) => {
+          return s + grouped.filter(g => g.rep === rep).reduce((ss, g) => ss + g.palet, 0);
+        }, 0);
+        if (repList.length > 1) {
+          warnings.push(`⚠ ${truck.name}: ${repList.join(' + ')} aynı kamyona atandı (${totPal.toFixed(1)} palet)`);
+        }
+        if (totPal > truck.cap) {
+          warnings.push(`⛔ ${truck.name} kapasitesi aşılıyor: ${totPal.toFixed(1)} / ${truck.cap} palet`);
+        }
+      });
 
-  // Assign each rep's noktalar to their chosen truck
-  grouped.forEach(g => {
-    if(held.has(g.nokta)) return; // don't touch held
-    const tid = _repAssignPlan[g.rep];
-    if(tid && !(assignments[tid]||[]).includes(g.nokta)) {
-      assignments[tid] = [...(assignments[tid]||[]), g.nokta];
+      const warnEl = document.getElementById('repAssignWarnings');
+      if (warnings.length) {
+        warnEl.innerHTML = warnings.join('<br>');
+        warnEl.style.display = 'block';
+      } else {
+        warnEl.style.display = 'none';
+      }
+
+      _repAssignPlan = plan;
     }
-  });
 
-  closeRepModal();
-  renderPage();
-}
+    // ── Direct version: no modal, executes immediately ────────────────────
+    function confirmRepAssign() {
+      // Always rebuild the default plan so this works even without the modal
+      buildRepAssignPlan();
 
-function closeRepModal() {
-  document.getElementById('repAssignModal').style.display = 'none';
-}
+      // If the modal is open, read any user overrides from the dropdowns
+      const modalOpen = document.getElementById('repAssignModal').style.display !== 'none';
+      if (modalOpen) onRepTruckChange();
 
-/* ════════════════════════════════════════════════
-   MERGE MODAL
-════════════════════════════════════════════════ */
-function openMergeModal() {
-  const grouped   = groupedNoktalar();
-  const assigned  = allAssigned();
-  const held      = new Set(heldRoutes);
-  const available = grouped.filter(g => !held.has(g.nokta));
+      const held = new Set(heldRoutes);
+      TRUCKS.forEach(t => { assignments[t.id] = []; });
 
-  const r1 = document.getElementById('mergeRoute1');
-  const r2 = document.getElementById('mergeRoute2');
-  const tr = document.getElementById('mergeTruck');
+      // Build rep → Set<nokta> from RAW DATA
+      const repNoktalar = {};
+      ALL_DATA.forEach(r => {
+        if (!repNoktalar[r.rep]) repNoktalar[r.rep] = new Set();
+        repNoktalar[r.rep].add(r.nokta);
+      });
 
-  const opts = available.map(g =>
-    `<option value="${esc(g.nokta)}">${g.nokta} (${g.rep.split(' ')[0]}, ${g.palet.toFixed(1)}p)</option>`
-  ).join('');
+      Object.entries(repNoktalar).forEach(([rep, noktaSet]) => {
+        const tid = _repAssignPlan[rep];
+        if (!tid) return;
+        noktaSet.forEach(nokta => {
+          if (held.has(nokta)) return;
+          if (!(assignments[tid] || []).includes(nokta)) {
+            assignments[tid] = [...(assignments[tid] || []), nokta];
+          }
+        });
+      });
 
-  r1.innerHTML = opts;
-  r2.innerHTML = opts;
-  if(available.length > 1) r2.value = available[1].nokta;
+      closeRepModal();
+      renderPage();
+    }
 
-  tr.innerHTML = TRUCKS.map(t => {
-    const used = truckPalets(t.id);
-    return `<option value="${t.id}">${t.name} — ${used.toFixed(1)}/${t.cap}p kullanıldı</option>`;
-  }).join('');
+    function closeRepModal() {
+      document.getElementById('repAssignModal').style.display = 'none';
+    }
 
-  document.getElementById('mergeWarning').style.display = 'none';
-  document.getElementById('mergeModal').style.display = 'flex';
-  updateMergeWarning();
+    /* ════════════════════════════════════════════════
+       MERGE MODAL
+    ════════════════════════════════════════════════ */
+    function openMergeModal() {
+      const grouped = groupedNoktalar();
+      const assigned = allAssigned();
+      const held = new Set(heldRoutes);
+      const available = grouped.filter(g => !held.has(g.nokta));
 
-  r1.onchange = updateMergeWarning;
-  r2.onchange = updateMergeWarning;
-  tr.onchange = updateMergeWarning;
-}
+      const r1 = document.getElementById('mergeRoute1');
+      const r2 = document.getElementById('mergeRoute2');
+      const tr = document.getElementById('mergeTruck');
 
-function updateMergeWarning() {
-  const grouped = groupedNoktalar();
-  const n1 = document.getElementById('mergeRoute1').value;
-  const n2 = document.getElementById('mergeRoute2').value;
-  const tid = document.getElementById('mergeTruck').value;
-  if(!tid) return;
+      const opts = available.map(g =>
+        `<option value="${esc(g.nokta)}">${g.nokta} (${g.rep.split(' ')[0]}, ${g.palet.toFixed(1)}p)</option>`
+      ).join('');
 
-  const truck  = TRUCKS.find(t=>t.id===tid);
-  const g1 = grouped.find(g=>g.nokta===n1);
-  const g2 = grouped.find(g=>g.nokta===n2);
-  const p1 = g1 ? g1.palet : 0;
-  const p2 = g2 ? g2.palet : 0;
-  const currentLoad = truckPalets(tid);
-  const newLoad = currentLoad + p1 + p2;
+      r1.innerHTML = opts;
+      r2.innerHTML = opts;
+      if (available.length > 1) r2.value = available[1].nokta;
 
-  const warn = document.getElementById('mergeWarning');
-  if(n1===n2) {
-    warn.textContent = '⚠ Aynı rotayı iki kez seçtiniz.';
-    warn.style.display='block';
-  } else if(newLoad > truck.cap) {
-    warn.textContent = `⚠ ${truck.name} kapasitesi aşılacak: ${newLoad.toFixed(1)} / ${truck.cap} palet`;
-    warn.style.display='block';
-  } else {
-    warn.style.display='none';
-  }
-}
+      tr.innerHTML = TRUCKS.map(t => {
+        const used = truckPalets(t.id);
+        return `<option value="${t.id}">${t.name} — ${used.toFixed(1)}/${t.cap}p kullanıldı</option>`;
+      }).join('');
 
-function confirmMerge() {
-  const n1  = document.getElementById('mergeRoute1').value;
-  const n2  = document.getElementById('mergeRoute2').value;
-  const tid = document.getElementById('mergeTruck').value;
-  if(n1===n2) { return; }
-  // Remove from wherever they are
-  TRUCKS.forEach(t => {
-    assignments[t.id] = (assignments[t.id]||[]).filter(n=>n!==n1&&n!==n2);
-  });
-  heldRoutes = heldRoutes.filter(n=>n!==n1&&n!==n2);
-  // Assign both
-  assignments[tid] = [...(assignments[tid]||[]).filter(n=>n!==n1&&n!==n2), n1, n2];
-  closeModal();
-  renderPage();
-}
+      document.getElementById('mergeWarning').style.display = 'none';
+      document.getElementById('mergeModal').style.display = 'flex';
+      updateMergeWarning();
 
-function closeModal() {
-  document.getElementById('mergeModal').style.display = 'none';
-}
+      r1.onchange = updateMergeWarning;
+      r2.onchange = updateMergeWarning;
+      tr.onchange = updateMergeWarning;
+    }
 
-/* ════════════════════════════════════════════════
-   OVERVIEW PAGE
-════════════════════════════════════════════════ */
-function renderOverview() {
-  const grouped   = groupedNoktalar();
-  const totalPal  = grouped.reduce((s,g)=>s+g.palet,0);
-  const totalCap  = TRUCKS.reduce((s,t)=>s+t.cap,0);
-  const fillPct   = totalCap ? Math.round(totalPal/totalCap*100) : 0;
-  const assigned  = allAssigned();
-  const held      = new Set(heldRoutes);
+    function updateMergeWarning() {
+      const grouped = groupedNoktalar();
+      const n1 = document.getElementById('mergeRoute1').value;
+      const n2 = document.getElementById('mergeRoute2').value;
+      const tid = document.getElementById('mergeTruck').value;
+      if (!tid) return;
 
-  document.getElementById('pageContent').innerHTML = `
+      // Sync route selects: disable options already chosen in the other select
+      const r1El = document.getElementById('mergeRoute1');
+      const r2El = document.getElementById('mergeRoute2');
+      Array.from(r2El.options).forEach(o => { o.disabled = (o.value === n1); });
+      Array.from(r1El.options).forEach(o => { o.disabled = (o.value === n2); });
+      // If current r2 became disabled, pick the next available option
+      if (r2El.value === n1) {
+        const next = Array.from(r2El.options).find(o => !o.disabled);
+        if (next) r2El.value = next.value;
+      }
+
+      const truck = TRUCKS.find(t => t.id === tid);
+      const g1 = grouped.find(g => g.nokta === n1);
+      const g2 = grouped.find(g => g.nokta === n2);
+      const p1 = g1 ? g1.palet : 0;
+      const p2 = g2 ? g2.palet : 0;
+
+      // Subtract already-assigned pallets of n1/n2 from currentLoad to avoid double-count
+      const currentLoad = truckPalets(tid);
+      const alreadyOnTruck = (assignments[tid] || []);
+      const alreadyP1 = alreadyOnTruck.includes(n1) ? p1 : 0;
+      const alreadyP2 = alreadyOnTruck.includes(n2) ? p2 : 0;
+      const newLoad = currentLoad - alreadyP1 - alreadyP2 + p1 + p2;
+
+      const warn = document.getElementById('mergeWarning');
+      if (n1 === n2) {
+        warn.textContent = '⚠ Aynı rotayı iki kez seçtiniz.';
+        warn.style.display = 'block';
+      } else if (newLoad > truck.cap) {
+        warn.textContent = `⚠ ${truck.name} kapasitesi aşılacak: ${newLoad.toFixed(1)} / ${truck.cap} palet`;
+        warn.style.display = 'block';
+      } else {
+        warn.style.display = 'none';
+      }
+    }
+
+    function confirmMerge() {
+      const n1 = document.getElementById('mergeRoute1').value;
+      const n2 = document.getElementById('mergeRoute2').value;
+      const tid = document.getElementById('mergeTruck').value;
+      if (n1 === n2) { return; }
+      // Remove from wherever they are
+      TRUCKS.forEach(t => {
+        assignments[t.id] = (assignments[t.id] || []).filter(n => n !== n1 && n !== n2);
+      });
+      heldRoutes = heldRoutes.filter(n => n !== n1 && n !== n2);
+      // Assign both
+      assignments[tid] = [...(assignments[tid] || []).filter(n => n !== n1 && n !== n2), n1, n2];
+      closeModal();
+      renderPage();
+    }
+
+    function closeModal() {
+      document.getElementById('mergeModal').style.display = 'none';
+    }
+
+    /* ════════════════════════════════════════════════
+       OVERVIEW PAGE
+    ════════════════════════════════════════════════ */
+    function renderOverview() {
+      const grouped = groupedNoktalar();
+      const totalPal = grouped.reduce((s, g) => s + g.palet, 0);
+      const totalCap = TRUCKS.reduce((s, t) => s + t.cap, 0);
+      const fillPct = totalCap ? Math.round(totalPal / totalCap * 100) : 0;
+      const assigned = allAssigned();
+      const held = new Set(heldRoutes);
+
+      document.getElementById('pageContent').innerHTML = `
   <div class="kpi-grid fade-in" style="grid-template-columns:repeat(4,1fr)">
     <div class="kpi-card blue">
       <div class="kpi-label">Fleet Doluluk</div>
@@ -1020,12 +1757,12 @@ function renderOverview() {
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">Aktif Kamyon</div>
-      <div class="kpi-value" style="color:var(--green)">${TRUCKS.filter(t=>(assignments[t.id]||[]).length>0).length}</div>
+      <div class="kpi-value" style="color:var(--green)">${TRUCKS.filter(t => (assignments[t.id] || []).length > 0).length}</div>
       <div class="kpi-sub">${TRUCKS.length} toplam</div>
     </div>
     <div class="kpi-card amber">
       <div class="kpi-label">Atanmamış</div>
-      <div class="kpi-value" style="color:var(--amber)">${grouped.filter(g=>!assigned.includes(g.nokta)&&!held.has(g.nokta)).length}</div>
+      <div class="kpi-value" style="color:var(--amber)">${grouped.filter(g => !assigned.includes(g.nokta) && !held.has(g.nokta)).length}</div>
       <div class="kpi-sub">nokta bekliyor</div>
     </div>
     <div class="kpi-card purple">
@@ -1040,54 +1777,54 @@ function renderOverview() {
     <div>
       ${TRUCKS.map(t => {
         const used = truckPalets(t.id);
-        const pct  = Math.min(used/t.cap*100,110);
-        const asgn = assignments[t.id]||[];
+        const pct = Math.min(used / t.cap * 100, 110);
+        const asgn = assignments[t.id] || [];
         return `
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
           <div style="width:80px;font-size:11px;color:var(--text2);white-space:nowrap">${t.name}</div>
           <div style="width:55px;font-size:10px;color:var(--text3);text-align:right;font-family:'IBM Plex Mono',monospace">${used.toFixed(1)}/${t.cap}p</div>
           <div style="flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${Math.min(pct,100)}%;background:${capColor(pct)};border-radius:3px;transition:width .4s"></div>
+            <div style="height:100%;width:${Math.min(pct, 100)}%;background:${capColor(pct)};border-radius:3px;transition:width .4s"></div>
           </div>
           <div style="width:28px;text-align:right;font-size:10px;color:${capColor(pct)};font-family:'IBM Plex Mono',monospace">${Math.round(pct)}%</div>
-          <div style="width:80px;font-size:10px;color:var(--text3)">${asgn.length ? asgn.slice(0,2).join(', ')+(asgn.length>2?` +${asgn.length-2}`:'') : '—'}</div>
+          <div style="width:80px;font-size:10px;color:var(--text3)">${asgn.length ? asgn.slice(0, 2).join(', ') + (asgn.length > 2 ? ` +${asgn.length - 2}` : '') : '—'}</div>
         </div>`;
       }).join('')}
     </div>
   </div>`;
-}
+    }
 
-/* ════════════════════════════════════════════════
-   ORDERS TABLE
-════════════════════════════════════════════════ */
-function renderOrdersTable() {
-  const data     = getFiltered();
-  const assigned = allAssigned();
-  const held     = new Set(heldRoutes);
+    /* ════════════════════════════════════════════════
+       ORDERS TABLE
+    ════════════════════════════════════════════════ */
+    function renderOrdersTable() {
+      const data = getFiltered();
+      const assigned = allAssigned();
+      const held = new Set(heldRoutes);
 
-  // Find which truck has each nokta
-  const truckFor = {};
-  TRUCKS.forEach(t => { (assignments[t.id]||[]).forEach(n=>{ truckFor[n]=t; }); });
+      // Find which truck has each nokta
+      const truckFor = {};
+      TRUCKS.forEach(t => { (assignments[t.id] || []).forEach(n => { truckFor[n] = t; }); });
 
-  const rows = data.map(g => {
-    const t = truckFor[g.nokta];
-    const isHeld = held.has(g.nokta);
-    let badge;
-    if(isHeld) badge = '<span class="pill pill-held">Ertelendi</span>';
-    else if(t)  badge = `<span class="pill pill-merged" style="">${t.name}</span>`;
-    else        badge = '<span class="pill pill-wait">Atanmadı</span>';
-    return `<tr>
+      const rows = data.map(g => {
+        const t = truckFor[g.nokta];
+        const isHeld = held.has(g.nokta);
+        let badge;
+        if (isHeld) badge = '<span class="pill pill-held">Ertelendi</span>';
+        else if (t) badge = `<span class="pill pill-merged" style="">${t.name}</span>`;
+        else badge = '<span class="pill pill-wait">Atanmadı</span>';
+        return `<tr>
       <td style="font-weight:500">${g.nokta}</td>
       <td><span style="display:inline-flex;align-items:center;gap:5px">
-        <span style="width:6px;height:6px;border-radius:50%;background:${repColorMap[g.rep]||'#888'};display:inline-block"></span>${g.rep}
+        <span style="width:6px;height:6px;border-radius:50%;background:${repColorMap[g.rep] || '#888'};display:inline-block"></span>${g.rep}
       </span></td>
       <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${g.miktar}</td>
       <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${g.palet.toFixed(2)}</td>
       <td>${badge}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="5"><div class="empty"><div class="empty-icon">◌</div>Veri bulunamadı</div></td></tr>`;
+      }).join('') || `<tr><td colspan="5"><div class="empty"><div class="empty-icon">◌</div>Veri bulunamadı</div></td></tr>`;
 
-  document.getElementById('pageContent').innerHTML = `
+      document.getElementById('pageContent').innerHTML = `
   <div class="panel fade-in">
     <div class="panel-header"><span class="panel-title">${data.length} sipariş noktası</span></div>
     <div class="tbl-wrap">
@@ -1097,54 +1834,55 @@ function renderOrdersTable() {
       </table>
     </div>
   </div>`;
-}
+    }
 
-/* ════════════════════════════════════════════════
-   EXPORT
-════════════════════════════════════════════════ */
-function exportPlan() {
-  const grouped = groupedNoktalar();
-  const held    = new Set(heldRoutes);
-  const truckFor = {};
-  TRUCKS.forEach(t => { (assignments[t.id]||[]).forEach(n=>{ truckFor[n]=t; }); });
+    /* ════════════════════════════════════════════════
+       EXPORT
+    ════════════════════════════════════════════════ */
+    function exportPlan() {
+      const grouped = groupedNoktalar();
+      const held = new Set(heldRoutes);
+      const truckFor = {};
+      TRUCKS.forEach(t => { (assignments[t.id] || []).forEach(n => { truckFor[n] = t; }); });
 
-  let csv = 'Kamyon,Tip,Kapasite,Nokta,Temsilci,Palet,Durum\n';
-  TRUCKS.forEach(t => {
-    const asgn = assignments[t.id]||[];
-    if(!asgn.length) return;
-    asgn.forEach(n => {
-      const g = grouped.find(x=>x.nokta===n);
-      if(g) csv += `${t.name},${t.type},${t.cap},${g.nokta},${g.rep},${g.palet.toFixed(2)},Atandı\n`;
-    });
-  });
-  heldRoutes.forEach(n => {
-    const g = grouped.find(x=>x.nokta===n);
-    if(g) csv += `—,—,—,${g.nokta},${g.rep},${g.palet.toFixed(2)},Ertelendi\n`;
-  });
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href=url; a.download='kamyon_plani.csv'; a.click();
-  URL.revokeObjectURL(url);
-}
+      let csv = 'Kamyon,Tip,Kapasite,Nokta,Temsilci,Palet,Durum\n';
+      TRUCKS.forEach(t => {
+        const asgn = assignments[t.id] || [];
+        if (!asgn.length) return;
+        asgn.forEach(n => {
+          const g = grouped.find(x => x.nokta === n);
+          if (g) csv += `${t.name},${t.type},${t.cap},${g.nokta},${g.rep},${g.palet.toFixed(2)},Atandı\n`;
+        });
+      });
+      heldRoutes.forEach(n => {
+        const g = grouped.find(x => x.nokta === n);
+        if (g) csv += `—,—,—,${g.nokta},${g.rep},${g.palet.toFixed(2)},Ertelendi\n`;
+      });
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'kamyon_plani.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
 
-/* ════════════════════════════════════════════════
-   UTILS
-════════════════════════════════════════════════ */
-function esc(str) {
-  return String(str).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-}
+    /* ════════════════════════════════════════════════
+       UTILS
+    ════════════════════════════════════════════════ */
+    function esc(str) {
+      return String(str).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    }
 
-/* ════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════ */
-TRUCKS.forEach(t => { assignments[t.id] = []; });
-document.getElementById('pageContent').innerHTML = `
+    /* ════════════════════════════════════════════════
+       INIT
+    ════════════════════════════════════════════════ */
+    TRUCKS.forEach(t => { assignments[t.id] = []; });
+    document.getElementById('pageContent').innerHTML = `
   <div class="empty" style="margin-top:60px">
     <div class="empty-icon">🚛</div>
     <div>Veri bekleniyor...</div>
     <div style="font-size:11px;color:var(--text3);margin-top:4px">Lütfen ana uygulamadan veri yükleyin</div>
   </div>`;
-</script>
+  </script>
 </body>
+
 </html>
